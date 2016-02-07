@@ -4,7 +4,7 @@
 
 Effortlessly send messages anywhere using Reactive Extensions (RX). Uses NetMQ as the transport layer.
 
-The libary is very simple to use. With a couple of lines of code, we can send any RX stream between different processes or machines.
+The libary is very simple to use. With a couple of lines of code, we can send any RX stream anywhere on the network.
 
 The API is a drop-in replacement for `Subject<T>` from Reactive Extensions (RX).
 
@@ -22,11 +22,15 @@ subject.OnNext(42);
 The new API is virtually identical:
 
 ```csharp
+// Machine 1
 SubjectNetMQ<int> subject = new SubjectNetMQ<int>("tcp://127.0.0.1:56001");
 subject.Subscribe(message =>
 {
-	// Receives 42 - on any other machine on the network!
+	// Receives 42.
 });
+
+// Machine 2
+SubjectNetMQ<int> subject = new SubjectNetMQ<int>("tcp://127.0.0.1:56001");
 subject.OnNext(42);
 ```
 
