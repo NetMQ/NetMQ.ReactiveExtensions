@@ -48,8 +48,8 @@ To check out the demos, see:
 
 Notes:
 - Compatible with all existing RX code. Can use `.Where()`, `.Select()`, etc.
-- Runs at 120,000 messages per second on localhost.
+- Runs at >120,000 messages per second on localhost.
 - Supports `.OnNext()`, `.OnException()`, and `.OnCompleted()`.
 - Properly passes exceptions across the wire.
-- Supported by many unit tests.
+- Supported by a full suite of unit tests.
 
