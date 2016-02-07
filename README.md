@@ -23,7 +23,7 @@ The new API is virtually identical:
 SubjectNetMQ<int> subject = new SubjectNetMQ<int>("tcp://127.0.0.1:56001");
 subject.Subscribe(message =>
 {
-	// Receives 42.
+	// Receives 42 - on any other machine on the network!
 });
 subject.OnNext(42);
 ```
