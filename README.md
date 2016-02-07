@@ -10,35 +10,35 @@ As a refresher, to use `Subject<T>` in Reactive Extensions (RX):
 
 ```csharp
 Subject<int> subject = new Subject<int>();
-	subject.Subscribe(message =>
-	  {
-		// Receives 42.
-	  });
-	subject.OnNext(42);
+subject.Subscribe(message =>
+{
+	// Receives 42.
+});
+subject.OnNext(42);
 ```
 
 The new API is virtually identical:
 
 ```csharp
 SubjectNetMQ<int> subject = new SubjectNetMQ<int>("tcp://127.0.0.1:56001");
-	subject.Subscribe(message =>
-	  {
-		// Receives 42.
-	  });
-	subject.OnNext(42);
+subject.Subscribe(message =>
+{
+	// Receives 42.
+});
+subject.OnNext(42);
 ```
 
 Currently, serialization is performed using ProtoBuf, so we have to annotate POCO classes with `ProtoContract` and `ProtoMember` like this:
 
 ```csharp
 [ProtoContract]
-	public struct MyMessage
-	{
-		[ProtoMember(1)]
-		public int Num { get; set; }
-		[ProtoMember(2)]
-		public string Name { get; set; }
-	}
+public struct MyMessage
+{
+	[ProtoMember(1)]
+	public int Num { get; set; }
+	[ProtoMember(2)]
+	public string Name { get; set; }
+}
 ```
 
 To check out the demos, see:
