@@ -8,25 +8,30 @@ The API is a drop-in replacement for `Subject<T>` from Reactive Extensions (RX).
 
 As a refresher, to use `Subject<T>` in Reactive Extensions (RX):
 
-> Subject<int> subject = new Subject<int>();
+```csharp
+Subject<int> subject = new Subject<int>();
 	subject.Subscribe(message =>
 	  {
 		// Receives 42.
 	  });
 	subject.OnNext(42);
+```
 
 The new API is virtually identical:
 
-> SubjectNetMQ<int> subject = new SubjectNetMQ<int>("tcp://127.0.0.1:56001");
+```csharp
+SubjectNetMQ<int> subject = new SubjectNetMQ<int>("tcp://127.0.0.1:56001");
 	subject.Subscribe(message =>
 	  {
 		// Receives 42.
 	  });
 	subject.OnNext(42);
+```
 
 Currently, serialization is performed using ProtoBuf, so we have to annotate POCO classes with `ProtoContract` and `ProtoMember` like this:
 
-> [ProtoContract]
+```csharp
+[ProtoContract]
 	public struct MyMessage
 	{
 		[ProtoMember(1)]
@@ -34,6 +39,7 @@ Currently, serialization is performed using ProtoBuf, so we have to annotate POC
 		[ProtoMember(2)]
 		public string Name { get; set; }
 	}
+```
 
 To check out the demos, see:
 - Publisher: Project `NetMQ.ReactiveExtensions.SamplePublisher`
