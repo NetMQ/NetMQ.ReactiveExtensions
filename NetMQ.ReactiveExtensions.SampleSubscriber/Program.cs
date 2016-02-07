@@ -27,6 +27,11 @@ namespace NetMQ.ReactiveExtensions.SampleClient
 	[ProtoContract]
 	public class MyMessage
 	{
+		public MyMessage()
+		{
+			
+		}
+
 		public MyMessage(int num, string name)
 		{
 			Num = num;
