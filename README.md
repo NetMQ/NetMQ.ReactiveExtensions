@@ -34,7 +34,7 @@ SubjectNetMQ<int> subject = new SubjectNetMQ<int>("tcp://127.0.0.1:56001");
 subject.OnNext(42);
 ```
 
-Currently, serialization is performed using ProtoBuf. Protobuf will handle simple types such as `int` without annotation, but if we want to send more complex classes, we have to annotate like this:
+Currently, serialization is performed using [ProtoBuf](https://github.com/mgravell/protobuf-net "ProtoBuf"). It will handle simple types such as `int` without annotation, but if we want to send more complex classes, we have to annotate like this:
 
 ```csharp
 [ProtoContract]
