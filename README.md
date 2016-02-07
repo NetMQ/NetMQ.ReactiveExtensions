@@ -1,5 +1,7 @@
 # NetMQ.ReactiveExtensions
 
+*Note: This project is sample code only at the moment, the NuGet package is in progress.*
+
 Effortlessly send messages anywhere using Reactive Extensions (RX). Uses NetMQ as the transport layer.
 
 The libary is very simple to use. With a couple of lines of code, we can send any RX stream between different processes or machines.
