@@ -2,9 +2,9 @@
 
 *Note: This project is sample code only at the moment, the NuGet package is in progress.*
 
-Effortlessly send messages anywhere using Reactive Extensions (RX). Uses NetMQ as the transport layer.
+Effortlessly send messages anywhere on the network using Reactive Extensions (RX).
 
-The libary is very simple to use. With a couple of lines of code, we can send any RX stream anywhere on the network.
+Uses NetMQ as the transport layer.
 
 The API is a drop-in replacement for `Subject<T>` from Reactive Extensions (RX).
 
