@@ -30,7 +30,7 @@ subject.Subscribe(message =>
 subject.OnNext(42);
 ```
 
-Currently, serialization is performed using ProtoBuf, so we have to annotate POCO classes with `ProtoContract` and `ProtoMember` like this:
+Currently, serialization is performed using ProtoBuf. Protobuf will handle simple types such as `int` without annotation, but if we want to send more complex classes, we have to annotate like this:
 
 ```csharp
 [ProtoContract]
@@ -49,6 +49,7 @@ To check out the demos, see:
 - Sample unit tests: Project `NetMQ.ReactiveExtensions.Tests`
 
 Notes:
+
 - Compatible with all existing RX code. Can use `.Where()`, `.Select()`, etc.
 - Runs at >120,000 messages per second on localhost.
 - Supports `.OnNext()`, `.OnException()`, and `.OnCompleted()`.
