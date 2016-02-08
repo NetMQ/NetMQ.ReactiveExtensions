@@ -2,8 +2,6 @@
 
 Effortlessly send messages anywhere on the network using Reactive Extensions (RX). Uses NetMQ as the transport layer.
 
-*See the NuGet Package*
-
 The API is a drop-in replacement for `Subject<T>` from Reactive Extensions (RX).
 
 ## Sample Code
