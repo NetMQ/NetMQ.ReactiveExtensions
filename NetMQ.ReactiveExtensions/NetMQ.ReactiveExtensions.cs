@@ -4,7 +4,6 @@ using System.Diagnostics;
 using System.Threading;
 using NetMQ.Monitoring;
 using NetMQ.Sockets;
-using ProtoBuf;
 // ReSharper disable SuggestVarOrType_SimpleTypes
 // ReSharper disable InvertIf
 #pragma warning disable 649
@@ -26,6 +25,7 @@ namespace NetMQ.ReactiveExtensions
 	/// <threadSafe>Yes</threadSafe>
 	public class SubjectNetMQ<T> : IObservable<T>, IObserver<T>, IDisposable
 	{
+	    // ReSharper disable once NotAccessedField.Local
 		private readonly EnumWhenToCreateConnection m_whenToCreateConnection;
 		private CancellationTokenSource m_cancellationTokenSource;
 		public string QueueName { get; private set; }
@@ -106,7 +106,7 @@ namespace NetMQ.ReactiveExtensions
 						{
 							monitor.Accepted -= Publisher_Event_Accepted;
 							monitor.Listening -= Publisher_Event_Listening;
-							// Current issue with NegMQ: Cannot stop or dipose monitor, or else it stops the parent socket.
+							// Current issue with NegMQ: Cannot stop or dispose monitor, or else it stops the parent socket.
 							//monitor.Stop();
 							//monitor.Dispose();
 						}
@@ -202,7 +202,7 @@ namespace NetMQ.ReactiveExtensions
 											{
 												m_subscribers.ForEach(o => o.OnCompleted());
 
-												// We are done! We want to send any more messages to subscribers, and we
+												// We are done! We don't want to send any more messages to subscribers, and we
 												// want to close the listening socket.
 												m_cancellationTokenSource.Cancel();
 											}
@@ -282,7 +282,7 @@ namespace NetMQ.ReactiveExtensions
 							monitor.ConnectRetried -= Subscriber_Event_ConnectRetried;
 							monitor.Connected -= Subscriber_Event_Connected;
 
-							// Issue with NetMQ - cannot .Stop or .Dispose, or else it will dipsose of the parent socket.
+							// Issue with NetMQ - cannot .Stop or .Dispose, or else it will dispose of the parent socket.
 							//monitor.Stop();
 							//monitor.Dispose();
 						}
