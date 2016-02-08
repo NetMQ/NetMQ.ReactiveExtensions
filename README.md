@@ -1,12 +1,12 @@
 # NetMQ.ReactiveExtensions
 
-*Note: This project is sample code only at the moment, the NuGet package is in progress.*
+Effortlessly send messages anywhere on the network using Reactive Extensions (RX). Uses NetMQ as the transport layer.
 
-Effortlessly send messages anywhere on the network using Reactive Extensions (RX).
-
-Uses NetMQ as the transport layer.
+*See the NuGet Package*
 
 The API is a drop-in replacement for `Subject<T>` from Reactive Extensions (RX).
+
+## Sample Code
 
 As a refresher, to use `Subject<T>` in Reactive Extensions (RX):
 
@@ -47,12 +47,18 @@ public struct MyMessage
 }
 ```
 
+## NuGet Package
+
+See the [NuGet package ("NetMQ Reactive Extensions")](https://www.nuget.org/packages/NetMQ.ReactiveExtensions/).
+
+## Demos
+
 To check out the demos, see:
 - Publisher: Project `NetMQ.ReactiveExtensions.SamplePublisher`
 - Subscriber: Project `NetMQ.ReactiveExtensions.SampleSubscriber`
 - Sample unit tests: Project `NetMQ.ReactiveExtensions.Tests`
 
-Notes:
+## Notes
 
 - Compatible with all existing RX code. Can use `.Where()`, `.Select()`, etc.
 - Runs at >120,000 messages per second on localhost.
