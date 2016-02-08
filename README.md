@@ -58,7 +58,7 @@ To check out the demos, see:
 
 ## Notes
 
-- Compatible with all existing RX code. Can use `.Where()`, `.Select()`, `.Buffer()`, `Throttle()`, etc.
+- Compatible with all existing RX code. Can use `.Where()`, `.Select()`, `.Buffer()`, `.Throttle()`, etc.
 - Runs at >120,000 messages per second on localhost.
 - Supports `.OnNext()`, `.OnException()`, and `.OnCompleted()`.
 - Properly passes exceptions across the wire.
