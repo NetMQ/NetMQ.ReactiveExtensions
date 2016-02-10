@@ -29,7 +29,7 @@ namespace NetMQ.ReactiveExtensions.SampleServer
 		}
 	}
 
-	[ProtoContract]
+	//[ProtoContract]
 	public class MyMessage
 	{
 		public MyMessage()

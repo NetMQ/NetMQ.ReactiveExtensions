@@ -302,6 +302,34 @@ namespace NetMQ.ReactiveExtensions.Tests
 			}
 		}
 
+		[Test]
+		public void If_Message_Not_Serializable_By_Protobuf_Throw_A_Meaningful_Error()
+		{
+			int freePort = TcpPortFree();
+			var pubSub = new SubjectNetMQ<MessageNotSerializableByProtobuf>("tcp://127.0.0.1:" + freePort);
+			try
+			{
+				pubSub.OnNext(new MessageNotSerializableByProtobuf());
+
+				// We should have thrown an exception if the class was not serializable by ProtoBuf-Net.
+				Assert.Fail();
+			}
+			catch (InvalidOperationException ex)
+			{
+				Assert.True(ex.Message.ToLower().Contains("protobuf"));
+				Console.Write("Pass - meaningful message thrown if class was not serializable by ProtoBuf-Net.");
+			}
+			catch (Exception)
+			{
+				Assert.Fail();
+			}
+		}
+
+		public class MessageNotSerializableByProtobuf
+		{
+			public int NotSerializable { get; set; }
+		}
+
 		/// <summary>
 		/// Intent: Returns next free TCP/IP port. See
 		/// http://stackoverflow.com/questions/138043/find-the-next-tcp-port-in-net
