@@ -347,10 +347,12 @@ namespace NetMQ.ReactiveExtensions
 			{
 				InitializePublisherOnFirstUse();
 
+				byte[] serialized = message.SerializeProtoBuf<T>();
+
 				// Publish message using ZeroMQ as the transport mechanism.
 				m_publisherSocket.SendMoreFrame(QueueName)
 					.SendMoreFrame("N") // "N", "E" or "C" for "OnNext", "OnError" or "OnCompleted".
-					.SendFrame(message.SerializeProtoBuf<T>());
+					.SendFrame(serialized);
 
 				// Comment in the remaining code for the standard pub/sub pattern.
 
@@ -364,9 +366,18 @@ namespace NetMQ.ReactiveExtensions
 				//this._subscribers.ForEach(msg => msg.OnNext(message));
 				//}
 			}
+			catch (InvalidOperationException ex)
+			{
+				if (ex.Source.ToLower().Contains("protobuf-net"))
+				{
+					var exWithDocs = new InvalidOperationException("Error: Message must be serializable by Protobuf-Net. To fix, annotate message with [ProtoContract] and [ProtoMember(N)]. See help on web.");
+					this.OnError(exWithDocs);
+					throw exWithDocs;
+				}
+			}
 			catch (Exception ex)
 			{
-				_loggerDelegate?.Invoke(string.Format("Exception: {0}", ex.Message));
+				_loggerDelegate?.Invoke(string.Format("Exception: {0}.", ex.Message));
 				this.OnError(ex);
 				throw;
 			}
