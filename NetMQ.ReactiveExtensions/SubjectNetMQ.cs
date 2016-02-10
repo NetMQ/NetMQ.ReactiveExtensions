@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Reactive;
 using System.Threading;
 using NetMQ.Monitoring;
 using NetMQ.Sockets;
@@ -11,33 +12,39 @@ using NetMQ.Sockets;
 namespace NetMQ.ReactiveExtensions
 {
 	/// <summary>
-	/// Intent: 
-	/// </summary>
-	public enum EnumWhenToCreateConnection
-	{
-		InstantConnectOnClassInstantiation,
-		LazyConnectOnFirstUse
-	}
-
-	/// <summary>
 	///	Intent: Pub/sub across different processes.
 	/// </summary>
 	/// <threadSafe>Yes</threadSafe>
-	public class SubjectNetMQ<T> : IObservable<T>, IObserver<T>, IDisposable
+	public class SubjectNetMQ<T> : IDisposable, ISubjectNetMQ<T>
 	{
-	    // ReSharper disable once NotAccessedField.Local
-		private readonly EnumWhenToCreateConnection m_whenToCreateConnection;
-		private CancellationTokenSource m_cancellationTokenSource;
+		#region Public
+
 		public string QueueName { get; private set; }
+
+		public string AddressZeroMq { get; private set; }
+		#endregion
+
+		// ReSharper disable once NotAccessedField.Local
+		private readonly WhenToCreateNetworkConnection _mWhenToCreateNetworkConnection;
+		private CancellationTokenSource m_cancellationTokenSource;
+		private readonly Action<string> _loggerDelegate;
+
 		private readonly List<IObserver<T>> m_subscribers = new List<IObserver<T>>();
 		private readonly object m_subscribersLock = new object();
 
-		public string ZeroMqAddress { get; set; }
-
-		public SubjectNetMQ(string zeroMqAddress, string queueName = "default", EnumWhenToCreateConnection whenToCreateConnection = EnumWhenToCreateConnection.LazyConnectOnFirstUse, CancellationTokenSource cancellationTokenSource = default(CancellationTokenSource))
+		/// <summary>
+		/// Intent: See interface.
+		/// </summary>
+		/// <param name="addressZeroMq">Address to connect to, e.g. "tcp://127.0.0.1:56000"</param>
+		/// <param name="queueName">Queue name. Allows different subject to coexist on the same transport (not implemented yet).</param>
+		/// <param name="whenToCreateNetworkConnection">When to create the network connection.</param>
+		/// <param name="cancellationTokenSource">Allows graceful termination of all internal threads associated with this subject.</param>
+		/// <param name="loggerDelegate">(optional) If we want to look at messages generated within this class, specify a logger here.</param>
+		public SubjectNetMQ(string addressZeroMq, string queueName = "default", WhenToCreateNetworkConnection whenToCreateNetworkConnection = WhenToCreateNetworkConnection.LazyConnectOnFirstUse, CancellationTokenSource cancellationTokenSource = default(CancellationTokenSource), Action<string> loggerDelegate = null)
 		{
-			m_whenToCreateConnection = whenToCreateConnection;
+			_mWhenToCreateNetworkConnection = whenToCreateNetworkConnection;
 			m_cancellationTokenSource = cancellationTokenSource;
+			_loggerDelegate = loggerDelegate;
 			QueueName = queueName;
 			if (string.IsNullOrEmpty(Thread.CurrentThread.Name) == true)
 			{
@@ -45,19 +52,19 @@ namespace NetMQ.ReactiveExtensions
 				Thread.CurrentThread.Name = queueName;
 			}
 
-			ZeroMqAddress = zeroMqAddress;
+			AddressZeroMq = addressZeroMq;
 
-			if (string.IsNullOrEmpty(ZeroMqAddress))
+			if (string.IsNullOrEmpty(AddressZeroMq))
 			{
 				throw new Exception("Error. Must define the address for ZeroMQ.");
 			}
 
-			if (whenToCreateConnection == EnumWhenToCreateConnection.InstantConnectOnClassInstantiation)
+			if (whenToCreateNetworkConnection == WhenToCreateNetworkConnection.InstantConnectOnClassInstantiation)
 			{
 				throw new ArgumentException(
-					"Argument exception: \"whenToCreateConnection == EnumWhenToCreateConnection.InstantConnectOnClassInstantiation\" is not supported for reasons of efficiency.\n" +
-				    "Class will lazily create a subscriber when '.Subscriber()' is first called, and lazily create a publisher when '.OnNext()', " +
-				    "'.OnError()', or '.OnCompleted()' are called for the first time.");
+					"Argument exception: \"whenToCreateNetworkConnection == WhenToCreateNetworkConnection.InstantConnectOnClassInstantiation\" is not supported for reasons of efficiency.\n" +
+				    "By default, this class will lazily create a subscriber when '.Subscriber()' is first called, and lazily " +
+					"create a publisher when '.OnNext()', '.OnError()', or '.OnCompleted()' are called for the first time.");
 			}
 		}
 
@@ -74,7 +81,8 @@ namespace NetMQ.ReactiveExtensions
 				{
 					if (m_initializePublisherDone == false)
 					{
-						Console.WriteLine("Publisher socket binding to: {0}", ZeroMqAddress);
+						_loggerDelegate?.Invoke(string.Format("Publisher socket binding to: {0}", AddressZeroMq));
+
 						m_publisherSocket = new PublisherSocket();
 
 						// Corner case: wait until publisher socket is ready (see code below that waits for
@@ -82,7 +90,7 @@ namespace NetMQ.ReactiveExtensions
 						NetMQMonitor monitor;
 						{
 							// Must ensure that we have a unique monitor name for every instance of this class.
-							string endPoint = string.Format("inproc://#SubjectNetMQ#Publisher#{0}#{1}", this.QueueName, this.ZeroMqAddress);
+							string endPoint = string.Format("inproc://#SubjectNetMQ#Publisher#{0}#{1}", this.QueueName, this.AddressZeroMq);
 							monitor = new NetMQMonitor(m_publisherSocket, endPoint,
 								SocketEvents.Accepted | SocketEvents.Listening
 								);
@@ -94,14 +102,14 @@ namespace NetMQ.ReactiveExtensions
 
 						m_publisherSocket.Options.SendHighWatermark = 2000 * 1000;
 
-						m_publisherSocket.Bind(this.ZeroMqAddress);
+						m_publisherSocket.Bind(this.AddressZeroMq);
 
 						// Corner case: wait until publisher socket is ready (see code below that sets
 						// "_publisherReadySignal").
 						{
 							Stopwatch sw = Stopwatch.StartNew();
 							m_publisherReadySignal.WaitOne(TimeSpan.FromMilliseconds(3000));
-							Console.Write("Publisher: Waited {0} ms for binding.\n", sw.ElapsedMilliseconds);
+							_loggerDelegate?.Invoke(string.Format("Publisher: Waited {0} ms for binding.\n", sw.ElapsedMilliseconds));
 						}
 						{
 							monitor.Accepted -= Publisher_Event_Accepted;
@@ -119,13 +127,13 @@ namespace NetMQ.ReactiveExtensions
 
 		private void Publisher_Event_Listening(object sender, NetMQMonitorSocketEventArgs e)
 		{
-			Console.Write("Publisher event: {0}\n", e.SocketEvent);
+			_loggerDelegate?.Invoke(string.Format("Publisher event: {0}\n", e.SocketEvent));
 			m_publisherReadySignal.Set();
 		}
 
 		private void Publisher_Event_Accepted(object sender, NetMQMonitorSocketEventArgs e)
 		{
-			Console.Write("Publisher event: {0}\n", e.SocketEvent);
+			_loggerDelegate?.Invoke(string.Format("Publisher event: {0}\n", e.SocketEvent));
 			m_publisherReadySignal.Set();
 		}
 		#endregion
@@ -144,7 +152,7 @@ namespace NetMQ.ReactiveExtensions
 				{
 					if (m_initializeSubscriberDone == false)
 					{
-						Console.WriteLine("Subscriber socket connecting to: {0}", ZeroMqAddress);
+						_loggerDelegate?.Invoke(string.Format("Subscriber socket connecting to: {0}\n", AddressZeroMq));
 						m_subscriberSocket = new SubscriberSocket();
 
 						// Corner case: wait until subscriber socket is ready (see code below that waits for
@@ -152,7 +160,7 @@ namespace NetMQ.ReactiveExtensions
 						NetMQMonitor monitor;
 						{
 							// Must ensure that we have a unique monitor name for every instance of this class.
-							string endpoint = string.Format("inproc://#SubjectNetMQ#Subscriber#{0}#{1}", this.QueueName, this.ZeroMqAddress);
+							string endpoint = string.Format("inproc://#SubjectNetMQ#Subscriber#{0}#{1}", this.QueueName, this.AddressZeroMq);
 
 							monitor = new NetMQMonitor(m_subscriberSocket, endpoint,
 								SocketEvents.ConnectRetried | SocketEvents.Connected);
@@ -162,7 +170,7 @@ namespace NetMQ.ReactiveExtensions
 						}
 
 						m_subscriberSocket.Options.ReceiveHighWatermark = 2000 * 1000;
-						m_subscriberSocket.Connect(this.ZeroMqAddress);
+						m_subscriberSocket.Connect(this.AddressZeroMq);
 						m_subscriberSocket.Subscribe(this.QueueName);
 
 						if (m_cancellationTokenSource == null)
@@ -176,7 +184,7 @@ namespace NetMQ.ReactiveExtensions
 						{
 							try
 							{
-								Console.Write("Thread initialized.\n");
+								_loggerDelegate?.Invoke(string.Format("Thread initialized.\n"));
 								threadReadySignal.Set();
 								while (m_cancellationTokenSource.IsCancellationRequested == false)
 								{
@@ -236,7 +244,7 @@ namespace NetMQ.ReactiveExtensions
 										// Originated from a "Ping" request.
 										case "P":
 											// Do nothing, this is a ping command used to wait until sockets are initialized properly.
-											Console.Write("Received ping.\n");
+											_loggerDelegate?.Invoke(string.Format("Received ping.\n"));
 											break;
 										default:
 											throw new Exception(string.Format("Error E28734. Something is wrong - received '{0}' when we expected \"N\", \"C\" or \"E\" - are we out of sync?", type));
@@ -245,7 +253,7 @@ namespace NetMQ.ReactiveExtensions
 							}
 							catch (Exception ex)
 							{
-								Console.Write("Error E23844. Exception in threadName \"{0}\". Thread exiting. Exception: \"{1}\".\n", QueueName, ex.Message);
+								_loggerDelegate?.Invoke(string.Format("Error E23844. Exception in threadName \"{0}\". Thread exiting. Exception: \"{1}\".\n", QueueName, ex.Message));
 								lock (m_subscribersLock)
 								{
 									this.m_subscribers.ForEach((ob) => ob.OnError(ex));
@@ -277,7 +285,7 @@ namespace NetMQ.ReactiveExtensions
 						{
 							Stopwatch sw = Stopwatch.StartNew();
 							m_subscriberReadySignal.WaitOne(TimeSpan.FromMilliseconds(3000));
-							Console.Write("Subscriber: Waited {0} ms for connection.\n", sw.ElapsedMilliseconds);
+							_loggerDelegate?.Invoke(string.Format("Subscriber: Waited {0} ms for connection.\n", sw.ElapsedMilliseconds));
 
 							monitor.ConnectRetried -= Subscriber_Event_ConnectRetried;
 							monitor.Connected -= Subscriber_Event_Connected;
@@ -287,7 +295,7 @@ namespace NetMQ.ReactiveExtensions
 							//monitor.Dispose();
 						}
 
-						Console.Write("Subscriber: finished setup.\n");
+						_loggerDelegate?.Invoke(string.Format("Subscriber: finished setup.\n"));
 
 						m_initializeSubscriberDone = true;
 					}
@@ -298,13 +306,13 @@ namespace NetMQ.ReactiveExtensions
 
 		private void Subscriber_Event_Connected(object sender, NetMQMonitorSocketEventArgs e)
 		{
-			Console.Write("Subscriber event: {0}\n", e.SocketEvent);
+			_loggerDelegate?.Invoke(string.Format("Subscriber event: {0}\n", e.SocketEvent));
 			m_subscriberReadySignal.Set();
 		}
 
 		private void Subscriber_Event_ConnectRetried(object sender, NetMQMonitorIntervalEventArgs e)
 		{
-			Console.Write("Subscriber event: {0}\n", e.SocketEvent);
+			_loggerDelegate?.Invoke(string.Format("Subscriber event: {0}\n", e.SocketEvent));
 			m_subscriberReadySignal.Set();
 		}
 		#endregion
@@ -358,10 +366,7 @@ namespace NetMQ.ReactiveExtensions
 			}
 			catch (Exception ex)
 			{
-				var col = Console.ForegroundColor;
-				Console.ForegroundColor = ConsoleColor.Red;
-				Console.WriteLine("Exception: {0}", ex.Message);
-				Console.ForegroundColor = col;
+				_loggerDelegate?.Invoke(string.Format("Exception: {0}", ex.Message));
 				this.OnError(ex);
 				throw;
 			}
