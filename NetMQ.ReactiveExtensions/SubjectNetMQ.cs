@@ -19,7 +19,7 @@ namespace NetMQ.ReactiveExtensions
 	{
 		#region Public
 
-		public string QueueName { get; private set; }
+		public string SubscriberFilterName { get; private set; }
 
 		public string AddressZeroMq { get; private set; }
 		#endregion
@@ -36,20 +36,29 @@ namespace NetMQ.ReactiveExtensions
 		/// Intent: See interface.
 		/// </summary>
 		/// <param name="addressZeroMq">Address to connect to, e.g. "tcp://127.0.0.1:56000"</param>
-		/// <param name="queueName">Queue name. Allows different subject to coexist on the same transport (not implemented yet).</param>
+		/// <param name="subscriberFilterName">Subscriber Filter name. Defaults to the type name T. Allows many types to get sent over the same transport connection.</param>
 		/// <param name="whenToCreateNetworkConnection">When to create the network connection.</param>
 		/// <param name="cancellationTokenSource">Allows graceful termination of all internal threads associated with this subject.</param>
 		/// <param name="loggerDelegate">(optional) If we want to look at messages generated within this class, specify a logger here.</param>
-		public SubjectNetMQ(string addressZeroMq, string queueName = "default", WhenToCreateNetworkConnection whenToCreateNetworkConnection = WhenToCreateNetworkConnection.LazyConnectOnFirstUse, CancellationTokenSource cancellationTokenSource = default(CancellationTokenSource), Action<string> loggerDelegate = null)
+		public SubjectNetMQ(string addressZeroMq, string subscriberFilterName = null, WhenToCreateNetworkConnection whenToCreateNetworkConnection = WhenToCreateNetworkConnection.LazyConnectOnFirstUse, CancellationTokenSource cancellationTokenSource = default(CancellationTokenSource), Action<string> loggerDelegate = null)
 		{
 			_mWhenToCreateNetworkConnection = whenToCreateNetworkConnection;
 			m_cancellationTokenSource = cancellationTokenSource;
 			_loggerDelegate = loggerDelegate;
-			QueueName = queueName;
+
+			if (subscriberFilterName == null)
+			{
+				//SubscriberFilterName = typeof(T).ToString();
+				// Unfortunately, the subscriber never scans more than the first 32 characters of the filter, so we must
+                // trim to less than this length. Damn!
+				//SubscriberFilterName = SubscriberFilterName.Substring(SubscriberFilterName.Length - 32);
+				SubscriberFilterName = "default";
+			}
+
 			if (string.IsNullOrEmpty(Thread.CurrentThread.Name) == true)
 			{
 				// Cannot set the thread name twice.
-				Thread.CurrentThread.Name = queueName;
+				Thread.CurrentThread.Name = subscriberFilterName;
 			}
 
 			AddressZeroMq = addressZeroMq;
@@ -81,7 +90,7 @@ namespace NetMQ.ReactiveExtensions
 				{
 					if (m_initializePublisherDone == false)
 					{
-						_loggerDelegate?.Invoke(string.Format("Publisher socket binding to: {0}", AddressZeroMq));
+						_loggerDelegate?.Invoke(string.Format("Publisher socket binding to: {0}\n", AddressZeroMq));
 
 						m_publisherSocket = new PublisherSocket();
 
@@ -90,7 +99,7 @@ namespace NetMQ.ReactiveExtensions
 						NetMQMonitor monitor;
 						{
 							// Must ensure that we have a unique monitor name for every instance of this class.
-							string endPoint = string.Format("inproc://#SubjectNetMQ#Publisher#{0}#{1}", this.QueueName, this.AddressZeroMq);
+							string endPoint = string.Format("inproc://#SubjectNetMQ#Publisher#{0}#{1}", this.SubscriberFilterName, this.AddressZeroMq);
 							monitor = new NetMQMonitor(m_publisherSocket, endPoint,
 								SocketEvents.Accepted | SocketEvents.Listening
 								);
@@ -160,7 +169,7 @@ namespace NetMQ.ReactiveExtensions
 						NetMQMonitor monitor;
 						{
 							// Must ensure that we have a unique monitor name for every instance of this class.
-							string endpoint = string.Format("inproc://#SubjectNetMQ#Subscriber#{0}#{1}", this.QueueName, this.AddressZeroMq);
+							string endpoint = string.Format("inproc://#SubjectNetMQ#Subscriber#{0}#{1}", this.SubscriberFilterName, this.AddressZeroMq);
 
 							monitor = new NetMQMonitor(m_subscriberSocket, endpoint,
 								SocketEvents.ConnectRetried | SocketEvents.Connected);
@@ -171,7 +180,9 @@ namespace NetMQ.ReactiveExtensions
 
 						m_subscriberSocket.Options.ReceiveHighWatermark = 2000 * 1000;
 						m_subscriberSocket.Connect(this.AddressZeroMq);
-						m_subscriberSocket.Subscribe(this.QueueName);
+
+						// this.SubscriberFilterName is set to the type T of the incoming class by default, so we can have many 
+						m_subscriberSocket.Subscribe(this.SubscriberFilterName);
 
 						if (m_cancellationTokenSource == null)
 						{
@@ -189,9 +200,9 @@ namespace NetMQ.ReactiveExtensions
 								while (m_cancellationTokenSource.IsCancellationRequested == false)
 								{
 									string messageTopicReceived = m_subscriberSocket.ReceiveFrameString();
-									if (messageTopicReceived != QueueName)
+									if (messageTopicReceived != SubscriberFilterName)
 									{
-										throw new Exception(string.Format("Error E65724. We should always subscribe on the queue name '{0}', instead we got '{1}'.", QueueName, messageTopicReceived));
+										throw new Exception(string.Format("Error E65724. We should always subscribe on the queue name '{0}', instead we got '{1}'.", SubscriberFilterName, messageTopicReceived));
 									}
 									var type = m_subscriberSocket.ReceiveFrameString();
 									switch (type)
@@ -253,7 +264,7 @@ namespace NetMQ.ReactiveExtensions
 							}
 							catch (Exception ex)
 							{
-								_loggerDelegate?.Invoke(string.Format("Error E23844. Exception in threadName \"{0}\". Thread exiting. Exception: \"{1}\".\n", QueueName, ex.Message));
+								_loggerDelegate?.Invoke(string.Format("Error E23844. Exception in threadName \"{0}\". Thread exiting. Exception: \"{1}\".\n", SubscriberFilterName, ex.Message));
 								lock (m_subscribersLock)
 								{
 									this.m_subscribers.ForEach((ob) => ob.OnError(ex));
@@ -272,7 +283,7 @@ namespace NetMQ.ReactiveExtensions
 							}
 						})
 						{
-							Name = this.QueueName,
+							Name = this.SubscriberFilterName,
 							IsBackground = true // Have to set it to background, or else it will not exit when the program exits.
 						};
 						m_thread.Start();
@@ -350,7 +361,7 @@ namespace NetMQ.ReactiveExtensions
 				byte[] serialized = message.SerializeProtoBuf<T>();
 
 				// Publish message using ZeroMQ as the transport mechanism.
-				m_publisherSocket.SendMoreFrame(QueueName)
+				m_publisherSocket.SendMoreFrame(SubscriberFilterName)
 					.SendMoreFrame("N") // "N", "E" or "C" for "OnNext", "OnError" or "OnCompleted".
 					.SendFrame(serialized);
 
@@ -391,7 +402,7 @@ namespace NetMQ.ReactiveExtensions
 			byte[] serializedException = exceptionWrapper.SerializeException();
 			string exceptionAsString = exception.ToString();
 
-			m_publisherSocket.SendMoreFrame(QueueName)
+			m_publisherSocket.SendMoreFrame(SubscriberFilterName)
 					.SendMoreFrame("E") // "N", "E" or "C" for "OnNext", "OnError" or "OnCompleted".
 					.SendMoreFrame(exceptionAsString.SerializeProtoBuf()) // Human readable exception. Added for 100%
                                                                           // cross-platform debugging, so we can read
@@ -416,7 +427,7 @@ namespace NetMQ.ReactiveExtensions
 		{
 			InitializePublisherOnFirstUse();
 
-			m_publisherSocket.SendMoreFrame(QueueName)
+			m_publisherSocket.SendMoreFrame(SubscriberFilterName)
 				.SendFrame("C"); // "N", "E" or "C" for "OnNext", "OnError" or "OnCompleted".
 		}
 		#endregion

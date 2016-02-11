@@ -113,6 +113,7 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="SerializeViaProtoBuf.cs" />
     <Compile Include="SubjectNetMQ.cs" />
+    <Compile Include="TransportLayerNetMq.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
