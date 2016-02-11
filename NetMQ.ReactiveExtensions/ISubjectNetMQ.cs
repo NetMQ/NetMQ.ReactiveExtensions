@@ -11,10 +11,10 @@ namespace NetMQ.ReactiveExtensions
 	public interface ISubjectNetMQ<T> : IObservable<T>, IObserver<T>, IDisposable
 	{
 		/// <summary>
-		/// Intent: Queue Name. Different queue names allows multiple subjects to coexist in the same process.
-		/// TODO: Make this default to the type of T, and implement a shared transport connection.
+		/// Intent: Subscriber Filter name. Defaults to the type name T. Allows many types to get sent over the same
+        /// transport connection.
 		/// </summary>
-		string QueueName { get; }
+		string SubscriberFilterName { get; }
 
 		/// <summary>
 		/// Intent: The current endpoint address specified in the constructor, e.g. "tcp://127.0.0.1:56001".

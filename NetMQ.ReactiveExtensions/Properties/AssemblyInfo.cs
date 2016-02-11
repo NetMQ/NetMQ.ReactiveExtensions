@@ -2,15 +2,14 @@
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 
-// General Information about an assembly is controlled through the following 
-// set of attributes. Change these attribute values to modify the information
-// associated with an assembly.
+// General Information about an assembly is controlled through the following set of attributes. Change these attribute
+// values to modify the information associated with an assembly.
 [assembly: AssemblyTitle("NetMQ.ReactiveExtensions")]
-[assembly: AssemblyDescription("")]
+[assembly: AssemblyDescription("Effortlessly send messages anywhere on the network using Reactive Extensions (RX). Uses NetMQ as the transport layer. See https://github.com/NetMQ/NetMQ.ReactiveExtensions/.")]
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("")]
 [assembly: AssemblyProduct("NetMQ.ReactiveExtensions")]
-[assembly: AssemblyCopyright("Copyright ©Shane Tolmie 2016")]
+[assembly: AssemblyCopyright("Copyright ©Shane Tolmie and Contributors 2016")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
 
@@ -32,5 +31,5 @@ using System.Runtime.InteropServices;
 // You can specify all the values or you can default the Build and Revision Numbers 
 // by using the '*' as shown below:
 // [assembly: AssemblyVersion("1.0.*")]
-[assembly: AssemblyVersion("0.1.0.22")]
-[assembly: AssemblyFileVersion("0.1.0.22")]
+[assembly: AssemblyVersion("0.1.0.24")]
+[assembly: AssemblyFileVersion("0.1.0.24")]

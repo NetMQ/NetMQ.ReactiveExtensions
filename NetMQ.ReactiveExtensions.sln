@@ -6,6 +6,9 @@ MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NetMQ.ReactiveExtensions", "NetMQ.ReactiveExtensions\NetMQ.ReactiveExtensions.csproj", "{53C7E7C2-0C41-4123-A555-27EC4AA7F275}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NetMQ.ReactiveExtensions.SamplePublisher", "NetMQ.ReactiveExtensions.SamplePublisher\NetMQ.ReactiveExtensions.SamplePublisher.csproj", "{428889AC-3686-4930-B20D-BA0CBDE35115}"
+	ProjectSection(ProjectDependencies) = postProject
+		{E9CE5A1C-0940-44A7-A03A-F3E26048EBB5} = {E9CE5A1C-0940-44A7-A03A-F3E26048EBB5}
+	EndProjectSection
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NetMQ.ReactiveExtensions.Tests", "NetMQ.ReactiveExtensions.Tests\NetMQ.ReactiveExtensions.Tests.csproj", "{E1E07A78-7831-4136-9D8D-C5F3ECB0224B}"
 EndProject

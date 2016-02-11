@@ -14,7 +14,13 @@ namespace NetMQ.ReactiveExtensions.SampleServer
 		{
 			Console.Write("Reactive Extensions publisher demo:\n");
 
-			SubjectNetMQ<MyMessage> subject = new SubjectNetMQ<MyMessage>("tcp://127.0.0.1:56001");
+			var subject = new SubjectNetMQ<MyMessage>("tcp://127.0.0.1:56001", loggerDelegate: msg => Console.Write(msg));
+
+			/*subject.Subscribe(message =>
+			{
+				// Also subscribe to ourself!
+				Console.Write("Received: {0}, '{1}'.\n", message.Num, message.Name);
+			});*/
 
 			int i = 0;
 			while (true)
@@ -29,7 +35,7 @@ namespace NetMQ.ReactiveExtensions.SampleServer
 		}
 	}
 
-	//[ProtoContract]
+	[ProtoContract]
 	public class MyMessage
 	{
 		public MyMessage()
