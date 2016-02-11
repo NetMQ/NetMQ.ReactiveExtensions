@@ -13,7 +13,7 @@ namespace NetMQ.ReactiveExtensions.SampleClient
 		{
 			Console.Write("Reactive Extensions subscriber demo:\n");
 
-			SubjectNetMQ<MyMessage> subject = new SubjectNetMQ<MyMessage>("tcp://127.0.0.1:56001");
+			SubjectNetMQ<MyMessage> subject = new SubjectNetMQ<MyMessage>("tcp://127.0.0.1:56001", loggerDelegate: msg => Console.Write(msg));
 			subject.Subscribe(message =>
 			{
 				Console.Write("Received: {0}, '{1}'.\n", message.Num, message.Name);

@@ -9,7 +9,7 @@ The API is a drop-in replacement for `Subject<T>` from Reactive Extensions (RX).
 As a refresher, to use `Subject<T>` in Reactive Extensions (RX):
 
 ```csharp
-Subject<int> subject = new Subject<int>();
+var subject = new Subject<int>();
 subject.Subscribe(message =>
 {
 	// Receives 42.
@@ -20,16 +20,27 @@ subject.OnNext(42);
 The new API is virtually identical:
 
 ```csharp
+var subject = new SubjectNetMQ<int>("tcp://127.0.0.1:56001");
+subject.Subscribe(message =>
+{
+	// Receives 42.
+});
+subject.OnNext(42);
+```
+
+If we want to run in separate processes:
+
+```csharp
 // Machine 1
-SubjectNetMQ<int> subject = new SubjectNetMQ<int>("tcp://127.0.0.1:56001");
+var subject = new SubjectNetMQ<int>("tcp://127.0.0.1:56001");
 subject.Subscribe(message =>
 {
 	// Receives 42.
 });
 
 // Machine 2
-SubjectNetMQ<int> subject = new SubjectNetMQ<int>("tcp://127.0.0.1:56001");
-subject.OnNext(42);
+var subject = new SubjectNetMQ<int>("tcp://127.0.0.1:56001");
+subject.OnNext(42); // Sends 42.
 ```
 
 Currently, serialization is performed using [ProtoBuf](https://github.com/mgravell/protobuf-net "ProtoBuf"). It will handle simple types such as `int` without annotation, but if we want to send more complex classes, we have to annotate like this:
