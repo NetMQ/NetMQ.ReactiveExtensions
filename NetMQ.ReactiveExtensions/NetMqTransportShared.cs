@@ -136,13 +136,13 @@ namespace NetMQ.ReactiveExtensions
 
 		#region Get Subscriber socket (if it's already been opened, we reuse it).
 		readonly Dictionary<string, SubscriberSocket> _dictAddressZeroMqToSubscriberSocket = new Dictionary<string, SubscriberSocket>();
-		private readonly object m_initializeSubscriberLock = new object();
+		private readonly object _initializeSubscriberLock = new object();
 		/// <summary>
 		/// Intent: See interface.
 		/// </summary>		
 		public SubscriberSocket GetSharedSubscriberSocket(string addressZeroMq)
 		{
-			lock (m_initializeSubscriberLock)
+			lock (_initializeSubscriberLock)
 			{
 				if (_dictAddressZeroMqToSubscriberSocket.ContainsKey(addressZeroMq) == false)
 				{
@@ -151,6 +151,7 @@ namespace NetMQ.ReactiveExtensions
 				}
 				else
 				{
+					// Each subscriber on the same machine to have its own copy of the subscriber.
 					return GetNewSubscriberSocket(addressZeroMq, false);
 				}
 			}

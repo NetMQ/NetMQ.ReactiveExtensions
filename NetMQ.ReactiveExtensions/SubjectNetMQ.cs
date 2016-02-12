@@ -144,9 +144,12 @@ namespace NetMQ.ReactiveExtensions
 									string messageTopicReceived = m_subscriberSocket.ReceiveFrameString();
 									if (messageTopicReceived != SubscriberFilterName)
 									{
-										Console.Write("Filtered out.\n");
-										// This message is for another subscriber.
+										// This message is for another subscriber. This should never occur.
+#if DEBUG
+										throw new Exception("Error E38444. Internal exception, this should never occur.");
+#else
 										return;
+#endif
 									}
 									var type = m_subscriberSocket.ReceiveFrameString();
 									switch (type)
