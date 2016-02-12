@@ -494,17 +494,11 @@ namespace NetMQ.ReactiveExtensions.Tests
 						Console.WriteLine("Exception! {0}", ex.Message);
 					});
 
-				//pubSub1.OnNext(new MyMessageStructType1(38, "Bob"));
-
-				Thread.Sleep(1500);
-
 				pubSub1.OnNext(new MyMessageStructType1(38, "Bob"));
 				pubSub1.OnNext(new MyMessageStructType1(39, "Bob"));
 				pubSub1.OnNext(new MyMessageStructType1(40, "Bob"));
 				pubSub1.OnNext(new MyMessageStructType1(41, "Bob"));
 				pubSub1.OnNext(new MyMessageStructType1(42, "Bob"));
-
-				Thread.Sleep(1500);
 
 				pubSub2.OnNext(new MyMessageStructType2(38, "Bob"));
 				pubSub2.OnNext(new MyMessageStructType2(39, "Bob"));

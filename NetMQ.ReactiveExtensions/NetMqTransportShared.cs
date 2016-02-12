@@ -146,40 +146,38 @@ namespace NetMQ.ReactiveExtensions
 			{
 				if (_dictAddressZeroMqToSubscriberSocket.ContainsKey(addressZeroMq) == false)
 				{
-					_dictAddressZeroMqToSubscriberSocket[addressZeroMq] = GetNewSubscriberSocket(addressZeroMq);
+					_dictAddressZeroMqToSubscriberSocket[addressZeroMq] = GetNewSubscriberSocket(addressZeroMq, true);
 					return _dictAddressZeroMqToSubscriberSocket[addressZeroMq];
 				}
 				else
 				{
-					Console.Write("Opening second subscriber.\n");
-					var subscriberSocket = new SubscriberSocket();
-					subscriberSocket.Options.ReceiveHighWatermark = 2000 * 1000;
-					subscriberSocket.Connect(addressZeroMq);
-					Thread.Sleep(TimeSpan.FromMilliseconds(500));
-					return subscriberSocket;
+					return GetNewSubscriberSocket(addressZeroMq, false);
 				}
 			}
 		}
 
 		private readonly ManualResetEvent m_subscriberReadySignal = new ManualResetEvent(false);
 
-		private SubscriberSocket GetNewSubscriberSocket(string addressZeroMq)
+		private SubscriberSocket GetNewSubscriberSocket(string addressZeroMq, bool additionalWaitFirstTime)
 		{
 			var subscriberSocket = new SubscriberSocket();
 
 			// Corner case: wait until subscriber socket is ready (see code below that waits for
 			// "_subscriberReadySignal").
-			NetMQMonitor monitor;
+			NetMQMonitor monitor = null;
+			if (additionalWaitFirstTime == true)
 			{
-				// Must ensure that we have a unique monitor name for every instance of this class.
-				string endpoint = string.Format("inproc://#SubjectNetMQ#Subscriber#{0}{1}", addressZeroMq, Guid.NewGuid());
+				{
+					// Must ensure that we have a unique monitor name for every instance of this class.
+					string endpoint = string.Format("inproc://#SubjectNetMQ#Subscriber#{0}", addressZeroMq);
 
-				monitor = new NetMQMonitor(subscriberSocket,
-					endpoint,
-					SocketEvents.ConnectRetried | SocketEvents.Connected);
-				monitor.ConnectRetried += Subscriber_Event_ConnectRetried;
-				monitor.Connected += Subscriber_Event_Connected;
-				monitor.StartAsync();
+					monitor = new NetMQMonitor(subscriberSocket,
+						endpoint,
+						SocketEvents.ConnectRetried | SocketEvents.Connected);
+					monitor.ConnectRetried += Subscriber_Event_ConnectRetried;
+					monitor.Connected += Subscriber_Event_Connected;
+					monitor.StartAsync();
+				}
 			}
 
 			subscriberSocket.Options.ReceiveHighWatermark = 2000*1000;
@@ -187,6 +185,7 @@ namespace NetMQ.ReactiveExtensions
 
 			// Corner case: wait until the publisher socket is ready (see code above that sets
 			// "_subscriberReadySignal").
+			if (additionalWaitFirstTime == true)
 			{
 				Stopwatch sw = Stopwatch.StartNew();
 				m_subscriberReadySignal.WaitOne(TimeSpan.FromMilliseconds(3000));
@@ -198,9 +197,8 @@ namespace NetMQ.ReactiveExtensions
 				// Issue with NetMQ - cannot .Stop or .Dispose, or else it will dispose of the parent socket.
 				//monitor.Stop();
 				//monitor.Dispose();
+				Thread.Sleep(TimeSpan.FromMilliseconds(500));
 			}
-
-			Thread.Sleep(TimeSpan.FromMilliseconds(500));
 			return subscriberSocket;			
 		}
 
