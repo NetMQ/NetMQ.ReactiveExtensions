@@ -48,11 +48,23 @@ namespace NetMQ.ReactiveExtensions
 
 			if (subscriberFilterName == null)
 			{
-				//SubscriberFilterName = typeof(T).ToString();
 				// Unfortunately, the subscriber never scans more than the first 32 characters of the filter, so we must
-                // trim to less than this length. Damn!
-				//SubscriberFilterName = SubscriberFilterName.Substring(SubscriberFilterName.Length - 32);
-				SubscriberFilterName = "default";
+                // trim to less than this length, but also ensure that it's unique. This ensures that if we get two
+                // classnames of 50 characters that only differ by the last character, everything will still work and we
+                // won't get crossed subscriptions.
+				SubscriberFilterName = typeof(T).Name;
+
+				if (SubscriberFilterName.Length > 32)
+				{
+					string uniqueHashCode = string.Format("{0:X8}", SubscriberFilterName.GetHashCode());
+
+					SubscriberFilterName = SubscriberFilterName.Substring(0, Math.Min(SubscriberFilterName.Length, 24));
+					SubscriberFilterName += uniqueHashCode;
+				}
+				if (SubscriberFilterName.Length > 32)
+				{
+					throw new Exception("Error E38742. Internal error; subscription length can never be longer than 32 characters.");
+				}
 			}
 
 			if (string.IsNullOrEmpty(Thread.CurrentThread.Name) == true)
@@ -81,8 +93,7 @@ namespace NetMQ.ReactiveExtensions
 		private PublisherSocket m_publisherSocket;
 		private volatile bool m_initializePublisherDone = false;
 		private readonly object m_initializePublisherLock = new object();
-		private readonly ManualResetEvent m_publisherReadySignal = new ManualResetEvent(false);
-		private void InitializePublisherOnFirstUse()
+		private void InitializePublisherOnFirstUse(string addressZeroMq)
 		{
 			if (m_initializePublisherDone == false) // Double checked locking.
 			{
@@ -91,59 +102,11 @@ namespace NetMQ.ReactiveExtensions
 					if (m_initializePublisherDone == false)
 					{
 						_loggerDelegate?.Invoke(string.Format("Publisher socket binding to: {0}\n", AddressZeroMq));
-
-						m_publisherSocket = new PublisherSocket();
-
-						// Corner case: wait until publisher socket is ready (see code below that waits for
-						// "_publisherReadySignal").
-						NetMQMonitor monitor;
-						{
-							// Must ensure that we have a unique monitor name for every instance of this class.
-							string endPoint = string.Format("inproc://#SubjectNetMQ#Publisher#{0}#{1}", this.SubscriberFilterName, this.AddressZeroMq);
-							monitor = new NetMQMonitor(m_publisherSocket, endPoint,
-								SocketEvents.Accepted | SocketEvents.Listening
-								);
-							monitor.Accepted += Publisher_Event_Accepted;
-							monitor.Listening += Publisher_Event_Listening;
-							monitor.StartAsync();
-						}
-
-
-						m_publisherSocket.Options.SendHighWatermark = 2000 * 1000;
-
-						m_publisherSocket.Bind(this.AddressZeroMq);
-
-						// Corner case: wait until publisher socket is ready (see code below that sets
-						// "_publisherReadySignal").
-						{
-							Stopwatch sw = Stopwatch.StartNew();
-							m_publisherReadySignal.WaitOne(TimeSpan.FromMilliseconds(3000));
-							_loggerDelegate?.Invoke(string.Format("Publisher: Waited {0} ms for binding.\n", sw.ElapsedMilliseconds));
-						}
-						{
-							monitor.Accepted -= Publisher_Event_Accepted;
-							monitor.Listening -= Publisher_Event_Listening;
-							// Current issue with NegMQ: Cannot stop or dispose monitor, or else it stops the parent socket.
-							//monitor.Stop();
-							//monitor.Dispose();
-						}
+						m_publisherSocket = NetMqTransportShared.Instance(_loggerDelegate).GetSharedPublisherSocket(addressZeroMq);
 						m_initializePublisherDone = true;
 					}
-				} // lock
-				Thread.Sleep(500); // Otherwise, the first item we publish may get missed by the subscriber.
+				}
 			}
-		}
-
-		private void Publisher_Event_Listening(object sender, NetMQMonitorSocketEventArgs e)
-		{
-			_loggerDelegate?.Invoke(string.Format("Publisher event: {0}\n", e.SocketEvent));
-			m_publisherReadySignal.Set();
-		}
-
-		private void Publisher_Event_Accepted(object sender, NetMQMonitorSocketEventArgs e)
-		{
-			_loggerDelegate?.Invoke(string.Format("Publisher event: {0}\n", e.SocketEvent));
-			m_publisherReadySignal.Set();
 		}
 		#endregion
 
@@ -151,9 +114,8 @@ namespace NetMQ.ReactiveExtensions
 		private SubscriberSocket m_subscriberSocket;
 		private volatile bool m_initializeSubscriberDone = false;
 		private Thread m_thread;
-		private readonly ManualResetEvent m_subscriberReadySignal = new ManualResetEvent(false);
 
-		private void InitializeSubscriberOnFirstUse()
+		private void InitializeSubscriberOnFirstUse(string addressZeroMq)
 		{
 			if (m_initializeSubscriberDone == false) // Double checked locking.
 			{
@@ -161,33 +123,12 @@ namespace NetMQ.ReactiveExtensions
 				{
 					if (m_initializeSubscriberDone == false)
 					{
-						_loggerDelegate?.Invoke(string.Format("Subscriber socket connecting to: {0}\n", AddressZeroMq));
-						m_subscriberSocket = new SubscriberSocket();
-
-						// Corner case: wait until subscriber socket is ready (see code below that waits for
-						// "_subscriberReadySignal").
-						NetMQMonitor monitor;
-						{
-							// Must ensure that we have a unique monitor name for every instance of this class.
-							string endpoint = string.Format("inproc://#SubjectNetMQ#Subscriber#{0}#{1}", this.SubscriberFilterName, this.AddressZeroMq);
-
-							monitor = new NetMQMonitor(m_subscriberSocket, endpoint,
-								SocketEvents.ConnectRetried | SocketEvents.Connected);
-							monitor.ConnectRetried += Subscriber_Event_ConnectRetried;
-							monitor.Connected += Subscriber_Event_Connected;
-							monitor.StartAsync();
-						}
-
-						m_subscriberSocket.Options.ReceiveHighWatermark = 2000 * 1000;
-						m_subscriberSocket.Connect(this.AddressZeroMq);
-
-						// this.SubscriberFilterName is set to the type T of the incoming class by default, so we can have many 
-						m_subscriberSocket.Subscribe(this.SubscriberFilterName);
-
 						if (m_cancellationTokenSource == null)
 						{
 							m_cancellationTokenSource = new CancellationTokenSource();
 						}
+
+						m_subscriberSocket = NetMqTransportShared.Instance(_loggerDelegate).GetSharedSubscriberSocket(addressZeroMq);
 
 						ManualResetEvent threadReadySignal = new ManualResetEvent(false);
 
@@ -199,10 +140,17 @@ namespace NetMQ.ReactiveExtensions
 								threadReadySignal.Set();
 								while (m_cancellationTokenSource.IsCancellationRequested == false)
 								{
+									//_loggerDelegate?.Invoke(string.Format("Received message for {0}.\n", typeof(T)));
+
 									string messageTopicReceived = m_subscriberSocket.ReceiveFrameString();
 									if (messageTopicReceived != SubscriberFilterName)
 									{
-										throw new Exception(string.Format("Error E65724. We should always subscribe on the queue name '{0}', instead we got '{1}'.", SubscriberFilterName, messageTopicReceived));
+										// This message is for another subscriber. This should never occur.
+#if DEBUG
+										throw new Exception("Error E38444. Internal exception, this should never occur, as the ZeroMQ lib automaticlaly filters by subject name.");
+#else
+										return;
+#endif
 									}
 									var type = m_subscriberSocket.ReceiveFrameString();
 									switch (type)
@@ -288,22 +236,16 @@ namespace NetMQ.ReactiveExtensions
 						};
 						m_thread.Start();
 
-						// Wait for thread to properly spin up.
+						// Wait for subscriber thread to properly spin up.
 						threadReadySignal.WaitOne(TimeSpan.FromMilliseconds(3000));
 
-						// Corner case: wait until the publisher socket is ready (see code above that sets
-						// "_subscriberReadySignal").
+						// Intent: Now connect to the socket.
 						{
-							Stopwatch sw = Stopwatch.StartNew();
-							m_subscriberReadySignal.WaitOne(TimeSpan.FromMilliseconds(3000));
-							_loggerDelegate?.Invoke(string.Format("Subscriber: Waited {0} ms for connection.\n", sw.ElapsedMilliseconds));
+							_loggerDelegate?.Invoke(string.Format("Subscriber socket connecting to: {0}\n", addressZeroMq));
 
-							monitor.ConnectRetried -= Subscriber_Event_ConnectRetried;
-							monitor.Connected -= Subscriber_Event_Connected;
-
-							// Issue with NetMQ - cannot .Stop or .Dispose, or else it will dispose of the parent socket.
-							//monitor.Stop();
-							//monitor.Dispose();
+							// this.SubscriberFilterName is set to the type T of the incoming class by default, so we can
+							// have many types on the same transport.
+							m_subscriberSocket.Subscribe(this.SubscriberFilterName);
 						}
 
 						_loggerDelegate?.Invoke(string.Format("Subscriber: finished setup.\n"));
@@ -313,18 +255,6 @@ namespace NetMQ.ReactiveExtensions
 				} // lock
 				Thread.Sleep(500); // Otherwise, the first item we subscribe  to may get missed by the subscriber.
 			}
-		}
-
-		private void Subscriber_Event_Connected(object sender, NetMQMonitorSocketEventArgs e)
-		{
-			_loggerDelegate?.Invoke(string.Format("Subscriber event: {0}\n", e.SocketEvent));
-			m_subscriberReadySignal.Set();
-		}
-
-		private void Subscriber_Event_ConnectRetried(object sender, NetMQMonitorIntervalEventArgs e)
-		{
-			_loggerDelegate?.Invoke(string.Format("Subscriber event: {0}\n", e.SocketEvent));
-			m_subscriberReadySignal.Set();
 		}
 		#endregion
 
@@ -336,7 +266,7 @@ namespace NetMQ.ReactiveExtensions
 				this.m_subscribers.Add(observer);
 			}
 
-			InitializeSubscriberOnFirstUse();
+			InitializeSubscriberOnFirstUse(this.AddressZeroMq);
 
 			// Could return ".this", but this would introduce an issue: if one subscriber unsubscribed, it would
 			// unsubscribe all subscribers.
@@ -356,7 +286,7 @@ namespace NetMQ.ReactiveExtensions
 		{
 			try
 			{
-				InitializePublisherOnFirstUse();
+				InitializePublisherOnFirstUse(this.AddressZeroMq);
 
 				byte[] serialized = message.SerializeProtoBuf<T>();
 
@@ -396,7 +326,7 @@ namespace NetMQ.ReactiveExtensions
 
 		public void OnError(Exception exception)
 		{
-			InitializePublisherOnFirstUse();
+			InitializePublisherOnFirstUse(this.AddressZeroMq);
 
 			var exceptionWrapper = new SerializableException(exception);	
 			byte[] serializedException = exceptionWrapper.SerializeException();
@@ -425,7 +355,7 @@ namespace NetMQ.ReactiveExtensions
 
 		public void OnCompleted()
 		{
-			InitializePublisherOnFirstUse();
+			InitializePublisherOnFirstUse(this.AddressZeroMq);
 
 			m_publisherSocket.SendMoreFrame(SubscriberFilterName)
 				.SendFrame("C"); // "N", "E" or "C" for "OnNext", "OnError" or "OnCompleted".

@@ -16,11 +16,11 @@ namespace NetMQ.ReactiveExtensions.SampleServer
 
 			var subject = new SubjectNetMQ<MyMessage>("tcp://127.0.0.1:56001", loggerDelegate: msg => Console.Write(msg));
 
-			/*subject.Subscribe(message =>
+			subject.Subscribe(message =>
 			{
 				// Also subscribe to ourself!
 				Console.Write("Received: {0}, '{1}'.\n", message.Num, message.Name);
-			});*/
+			});
 
 			int i = 0;
 			while (true)
@@ -32,6 +32,7 @@ namespace NetMQ.ReactiveExtensions.SampleServer
 				Thread.Sleep(TimeSpan.FromMilliseconds(1000));
 				i++;
 			}
+			// NOTE: If you run the "SampleSubscriber" project now, you will see the same messages appearing in the subscriber.
 		}
 	}
 
