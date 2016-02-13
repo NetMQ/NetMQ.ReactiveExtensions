@@ -117,6 +117,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="NetMQ.ReactiveExtensions.Tests.cs" />
+    <Compile Include="RouterDealerTest.cs" />
     <Compile Include="SerializeAnExceptionTests.cs" />
     <Compile Include="SerializeViaProtoBufTests.cs" />
   </ItemGroup>

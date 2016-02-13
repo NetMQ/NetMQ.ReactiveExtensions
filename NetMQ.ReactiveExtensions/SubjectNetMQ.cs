@@ -146,7 +146,7 @@ namespace NetMQ.ReactiveExtensions
 									{
 										// This message is for another subscriber. This should never occur.
 #if DEBUG
-										throw new Exception("Error E38444. Internal exception, this should never occur.");
+										throw new Exception("Error E38444. Internal exception, this should never occur, as the ZeroMQ lib automaticlaly filters by subject name.");
 #else
 										return;
 #endif
