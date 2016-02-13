@@ -79,7 +79,7 @@ To check out the demos, see:
 - Properly passes exceptions across the wire.
 - Supported by a full suite of unit tests.
 
-## Limitations
+## Shared Transport
 
 As a shared transport is used beyind the scenes, we can reuse the same endpoint as many times as we want within the same process, e.g.:
 
@@ -91,9 +91,19 @@ var subject2 = new SubjectNetMQ<MyMessage2>("tcp://127.0.0.1:56001");
 subject2.OnNext(42); // We are publishing, so this automatically reuses the shared transport.
 ```
 
-However, if a *second process* attempts to bind to the same endpoint, e.g. `tcp://127.0.0.1:56001`, then this endpoint will already be in use, and an exception will be thrown.
+However, if a *second process* attempts to publish to the same endpoint, then this endpoint will already be in use, and an exception will be thrown, e.g.
 
-This could be solved by replacing the Pub/Sub with Router/Dealer behind the scenes, however, this introduces other, more advanced limitations.
+```csharp
+// Process 1
+var subject1 = new SubjectNetMQ<MyMessage1>("tcp://127.0.0.1:56001");
+subject1.OnNext(42); // We are publishing, so this automatically sets up a transport as a publisher.
+
+// Process 2 (fails)
+var subject2 = new SubjectNetMQ<MyMessage2>("tcp://127.0.0.1:56001"); 
+subject1.OnNext(42); // We are publishing, so this automatically attempts to sets up a transport as a publisher.
+```
+
+In practice, this is probably what we want: we don't want two processes publishing on the same endpoint, as the subscribers will get duplicate messages. This could be solved by replacing the Pub/Sub with Router/Dealer behind the scenes, however, this introduces other, more advanced limitations (e.g. do we want the same messages to be duplicated on each subscriber, and what if the process that hosts the Dealer is stopped?).
 
 ## Wiki
 
