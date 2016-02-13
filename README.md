@@ -79,6 +79,22 @@ To check out the demos, see:
 - Properly passes exceptions across the wire.
 - Supported by a full suite of unit tests.
 
+## Limitations
+
+As a shared transport is used beyind the scenes, we can reuse the same endpoint as many times as we want within the same process, e.g.:
+
+```csharp
+var subject1 = new SubjectNetMQ<MyMessage1>("tcp://127.0.0.1:56001");
+subject1.OnNext(42); // We are publishing, so this automatically sets up a transport as a publisher.
+
+var subject2 = new SubjectNetMQ<MyMessage2>("tcp://127.0.0.1:56001"); 
+subject2.OnNext(42); // We are publishing, so this automatically reuses the shared transport.
+```
+
+However, if a *second process* attempts to bind to the same endpoint, e.g. `tcp://127.0.0.1:56001`, then this endpoint will already be in use, and an exception will be thrown.
+
+This could be solved by replacing the Pub/Sub with Router/Dealer behind the scenes, however, this introduces other, more advanced limitations.
+
 ## Wiki
 
 See the [Wiki with more documentation](https://github.com/NetMQ/NetMQ.ReactiveExtensions/wiki).
