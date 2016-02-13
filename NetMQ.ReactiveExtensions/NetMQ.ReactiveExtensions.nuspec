@@ -12,7 +12,7 @@
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
     <description>Reactive Extensions (RX) with NetMQ as the transport layer. Send messages anywhere on the network!</description>
     <releaseNotes>
-      First beta release. Feedback welcome.
+      Second alpha release. Feedback welcome.
     </releaseNotes>
     <copyright>Copyright 2016</copyright>
     <tags>Reactive Extensions RX .NET C# ZeroMQ 0MQ CLRZMQ NetMQ Messaging ZMQ transport distributed</tags>
