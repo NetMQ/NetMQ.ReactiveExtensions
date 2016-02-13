@@ -1,10 +1,4 @@
-﻿// *************************************************************************************************************************
-// (c)2014,2015,2016 NeuralFutures LLC.
-// Embedded copy protection will prevent this code from generating full alpha on any unauthorized 3rd party machine.
-// Licenses are reasonably priced and will be supplied to interested 3rd parties. Just ask what NeuralFutures is working on.
-// *************************************************************************************************************************
-
-#region
+﻿#region
 using System;
 using System.Diagnostics;
 using System.Net;
