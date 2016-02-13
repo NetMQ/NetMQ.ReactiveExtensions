@@ -10,13 +10,14 @@ using NUnit.Framework;
 namespace NetMQ.ReactiveExtensions.Tests
 {
 	[TestFixture]
-	public class RouterDealerTest
+	public class RouterDealerTest2
 	{
 		/// <summary>
-		///		From Router-Dealer docs, see: https://github.com/zeromq/netmq/blob/master/docs/router-dealer.md
+		///	Intent: Modified from example in Router-Dealer docs, see:
+        ///	https://github.com/zeromq/netmq/blob/master/docs/router-dealer.md
 		/// </summary>
 		[Test]
-		public void Router_Dealer_Socket_Should_Just_Work()
+		public void Router_Dealer_Demonstrating_Messages_From_Publisher_To_Subscribers()
 		{
 			// NOTES
 			// 1. Use ThreadLocal<DealerSocket> where each thread has
@@ -24,7 +25,7 @@ namespace NetMQ.ReactiveExtensions.Tests
 			// 2. Each thread can send using it own socket
 			// 3. Each thread socket is added to poller
 
-			const int delay = 3000; // millis
+			const int delay = 500; // millis
 
 			var clientSocketPerThread = new ThreadLocal<DealerSocket>();
 
@@ -48,7 +49,7 @@ namespace NetMQ.ReactiveExtensions.Tests
 								client.Options.Identity =
 									Encoding.Unicode.GetBytes(state.ToString());
 								client.Connect("tcp://127.0.0.1:5556");
-								client.ReceiveReady += Client_ReceiveReady;
+								//client.ReceiveReady += Client_ReceiveReady;
 								clientSocketPerThread.Value = client;
 								poller.Add(client);
 							}
@@ -59,15 +60,11 @@ namespace NetMQ.ReactiveExtensions.Tests
 
 							while (true)
 							{
-								NetMQMessage messageToServer = new NetMQMessage();
-								messageToServer.AppendEmptyFrame();
-								messageToServer.Append(state.ToString());
+								var clientMessage = client.ReceiveMultipartMessage();
 								Console.WriteLine("======================================");
-								Console.WriteLine(" OUTGOING MESSAGE TO SERVER ");
+								Console.WriteLine(" INCOMING CLIENT MESSAGE FROM SERVER");
 								Console.WriteLine("======================================");
-								PrintFrames("Client Sending", messageToServer);
-								client.SendMultipartMessage(messageToServer);
-								Thread.Sleep(delay);
+								PrintFrames("Server receiving", clientMessage);
 							}
 
 						},
@@ -79,27 +76,21 @@ namespace NetMQ.ReactiveExtensions.Tests
 					poller.RunAsync();
 
 					// server loop
-					while (true)
+					int sequenceNo = 0;
+					for (int i=0;i<5;i++)
 					{
-						NetMQMessage clientMessage = server.ReceiveMessage();
+						NetMQMessage messageToServer = new NetMQMessage();
+						messageToServer.AppendEmptyFrame();
+						messageToServer.Append(sequenceNo.ToString());
+						sequenceNo++;
 						Console.WriteLine("======================================");
-						Console.WriteLine(" INCOMING CLIENT MESSAGE FROM CLIENT ");
+						Console.WriteLine(" OUTGOING MESSAGE {0} TO CLIENTS ", sequenceNo);
 						Console.WriteLine("======================================");
-						PrintFrames("Server receiving", clientMessage);
-						if (clientMessage.FrameCount == 3)
-						{
-							var clientAddress = clientMessage[0];
-							var clientOriginalMessage = clientMessage[2].ConvertToString();
-							string response = string.Format("{0} back from server {1}",
-								clientOriginalMessage,
-								DateTime.Now.ToLongTimeString());
-							var messageToClient = new NetMQMessage();
-							messageToClient.Append(clientAddress);
-							messageToClient.AppendEmptyFrame();
-							messageToClient.Append(response);
-							server.SendMultipartMessage(messageToClient);
-						}
+						PrintFrames("Client Sending", messageToServer);
+						server.SendMultipartMessage(messageToServer);
+						Thread.Sleep(delay);						
 					}
+					Console.WriteLine("Finished.");
 				}
 			}
 		}
@@ -121,6 +112,52 @@ namespace NetMQ.ReactiveExtensions.Tests
 			{
 				string result = e.Socket.ReceiveFrameString(out hasmore);
 				Console.WriteLine("REPLY {0}", result);
+			}
+		}
+
+		[Test]
+		public void Two_Messages_FromRouter_To_Dealer()
+		{
+			using (var server = new RouterSocket())
+			using (var client = new DealerSocket())
+			using (var poller = new NetMQPoller { client })
+			{
+				var port = server.BindRandomPort("tcp://*");
+				client.Connect("tcp://127.0.0.1:" + port);
+				var cnt = 0;
+				client.ReceiveReady += (sender, e) =>
+				{
+					var strs = e.Socket.ReceiveMultipartStrings();
+					foreach (var str in strs)
+					{
+						Console.WriteLine(str);
+					}
+					cnt++;
+					if (cnt == 2)
+					{
+						poller.Stop();
+					}
+				};
+				byte[] clientId = Encoding.Unicode.GetBytes("ClientId");
+				client.Options.Identity = clientId;
+
+				const string request = "GET /\r\n";
+
+				const string response = "HTTP/1.0 200 OK\r\n" +
+						"Content-Type: text/plain\r\n" +
+						"\r\n" +
+						"Hello, World!";
+
+				client.SendFrame(request);
+
+				byte[] serverId = server.ReceiveFrameBytes();
+				Assert.AreEqual(request, server.ReceiveFrameString());
+
+				// two messages in a row, not frames
+				server.SendMoreFrame(serverId).SendFrame(response);
+				server.SendMoreFrame(serverId).SendFrame(response);
+
+				poller.Run();
 			}
 		}
 	}
