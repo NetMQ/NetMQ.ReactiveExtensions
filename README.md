@@ -1,5 +1,7 @@
 # NetMQ.ReactiveExtensions
 
+![](https://img.shields.io/nuget/v/NetMQ.ReactiveExtensions.svg)
+
 Effortlessly send messages anywhere on the network using Reactive Extensions (RX). Uses NetMQ as the transport layer.
 
 ## Sample Code
@@ -58,7 +60,9 @@ public struct MyMessage
 
 ## NuGet Package
 
-See the [NuGet package ("NetMQ Reactive Extensions")](https://www.nuget.org/packages/NetMQ.ReactiveExtensions/).
+![](https://img.shields.io/nuget/v/NetMQ.ReactiveExtensions.svg)
+
+See [NetMQ.ReactiveExtensions](https://www.nuget.org/packages/NetMQ.ReactiveExtensions/).
 
 ## Demos
 
