@@ -164,6 +164,7 @@ namespace NetMQ.ReactiveExtensions.Tests
 
 				pubSub.Subscribe(o =>
 				{
+					Assert.IsTrue(o != 1);
 					Console.Write("Test 1: {0}\n", o);
 					cd.Signal();
 				},
