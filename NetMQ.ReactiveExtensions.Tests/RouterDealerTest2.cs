@@ -129,7 +129,7 @@ namespace NetMQ.ReactiveExtensions.Tests
 		}
 
 		[Test]
-		public void Two_Messages_From_Dealer_To_Router()
+		public void Messages_From_Dealer_To_Router()
 		{
 			int maxMessage = 5;
 			CountdownEvent cd = new CountdownEvent(maxMessage);
@@ -181,19 +181,23 @@ namespace NetMQ.ReactiveExtensions.Tests
 		}
 
 		[Test]
-		public void Two_Messages_From_Router_To_Dealer()
+		public void Messages_From_Router_To_Dealer()
 		{
 			Console.Write("Test sending message from publisher(router) to subscribers (dealer).\n");
 
 			int maxMessage = 5;
 			CountdownEvent cd = new CountdownEvent(maxMessage);
 
-			using (var publisher = new RouterSocket()) // Publisher.
+			string endpoint;
+
+			using (var publisher = new RouterSocket()) 
 			using (var subscriber = new DealerSocket())
 			using (var poller = new NetMQPoller { subscriber })
 			{
-				var port = publisher.BindRandomPort("tcp://*");
-				subscriber.Connect("tcp://127.0.0.1:" + port);
+				publisher.Bind("tcp://127.0.0.1:0");
+				endpoint = publisher.Options.LastEndpoint;
+
+				subscriber.Connect(endpoint);
 				subscriber.ReceiveReady += (sender, e) =>
 				{
 					var strs = e.Socket.ReceiveMultipartStrings();
@@ -221,6 +225,63 @@ namespace NetMQ.ReactiveExtensions.Tests
 					string msg = string.Format("[message: {0}]", i);
 					Console.Write("Publish: {0}\n", msg);
 					publisher.SendMoreFrame(serverId).SendFrame(msg);
+				}
+
+				poller.RunAsync();
+
+				if (cd.Wait(TimeSpan.FromSeconds(10)) == false) // Blocks until _countdown.Signal has been called.
+				{
+					Assert.Fail("Timed out, this test should complete in less than 10 seconds.");
+				}
+			}
+		}
+
+		[Test]
+		public void Messages_From_Router_To_Dealer_With_Subscription()
+		{
+			Console.Write("Test sending message from publisher(router) to subscribers (dealer).\n");
+
+			int maxMessage = 5;
+			CountdownEvent cd = new CountdownEvent(maxMessage);
+
+			string endpoint;
+
+			using (var publisher = new RouterSocket())
+			using (var subscriber = new DealerSocket())
+			using (var poller = new NetMQPoller { subscriber })
+			{
+				publisher.Bind("tcp://127.0.0.1:0");
+				endpoint = publisher.Options.LastEndpoint;
+
+				subscriber.Connect(endpoint);
+				subscriber.ReceiveReady += (sender, e) =>
+				{
+					var strs = e.Socket.ReceiveMultipartStrings();
+					foreach (var str in strs)
+					{
+						Console.WriteLine("Subscribe: " + str);
+					}
+					cd.Signal();
+				};
+				byte[] clientId = Encoding.Unicode.GetBytes("ClientIdTheIsLongerThen32BytesForSureAbsolutelySure");
+				subscriber.Options.Identity = clientId;
+
+				const string request = "Ping";
+
+				// Work around "feature" of router/dealer: the publisher does not know the subscriber exists, until it
+				// sends at least one message which makes it necessary to open the connection. I believe this is a
+				// low-level feature of the TCP/IP transport.
+				subscriber.SendFrame(request); // Ping.
+
+				byte[] serverId = publisher.ReceiveFrameBytes();
+				//Assert.AreEqual(request, publisher.ReceiveFrameString());
+
+				for (int i = 0; i < maxMessage; i++)
+				{
+					string msg = string.Format("[message: {0}]", i);
+					Console.Write("Publish: {0}\n", msg);
+					publisher.SendMoreFrame(serverId).SendFrame(msg);
+					//publisher.SendMoreFrame("").SendFrame(msg);
 				}
 
 				poller.RunAsync();

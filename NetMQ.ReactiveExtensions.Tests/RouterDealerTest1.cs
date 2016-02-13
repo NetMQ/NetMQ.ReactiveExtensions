@@ -24,7 +24,7 @@ namespace NetMQ.ReactiveExtensions.Tests
 			// 2. Each thread can send using it own socket
 			// 3. Each thread socket is added to poller
 
-			const int delay = 3000; // millis
+			const int delay = 500; // millis
 
 			var clientSocketPerThread = new ThreadLocal<DealerSocket>();
 
@@ -79,7 +79,7 @@ namespace NetMQ.ReactiveExtensions.Tests
 					poller.RunAsync();
 
 					// server loop
-					while (true)
+					for(int i=0;i<6;i++)
 					{
 						NetMQMessage clientMessage = server.ReceiveMessage();
 						Console.WriteLine("======================================");

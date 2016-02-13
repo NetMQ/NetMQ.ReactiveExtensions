@@ -48,15 +48,22 @@ namespace NetMQ.ReactiveExtensions
 
 			if (subscriberFilterName == null)
 			{
-				//SubscriberFilterName = typeof(T).ToString();
 				// Unfortunately, the subscriber never scans more than the first 32 characters of the filter, so we must
-                // trim to less than this length. Damn!
-				//SubscriberFilterName = SubscriberFilterName.Substring(SubscriberFilterName.Length - 32);
+                // trim to less than this length, but also ensure that it's unique. This ensures that if we get two
+                // classnames of 50 characters that only differ by the last character, everything will still work and we
+                // won't get crossed subscriptions.
 				SubscriberFilterName = typeof(T).Name;
-				if (SubscriberFilterName.Length >= 31)
+
+				if (SubscriberFilterName.Length > 32)
 				{
-					// TODO: Figure out a way around this - only use the first 32 characters? Only use first 26 chars, with a 6-char hash at end?
-					throw new Exception("Error E38765. Length of class name cannot be more than 32 characters.");
+					string uniqueHashCode = string.Format("{0:X8}", SubscriberFilterName.GetHashCode());
+
+					SubscriberFilterName = SubscriberFilterName.Substring(0, Math.Min(SubscriberFilterName.Length, 24));
+					SubscriberFilterName += uniqueHashCode;
+				}
+				if (SubscriberFilterName.Length > 32)
+				{
+					throw new Exception("Error E38742. Internal error; subscription length can never be longer than 32 characters.");
 				}
 			}
 
@@ -95,7 +102,7 @@ namespace NetMQ.ReactiveExtensions
 					if (m_initializePublisherDone == false)
 					{
 						_loggerDelegate?.Invoke(string.Format("Publisher socket binding to: {0}\n", AddressZeroMq));
-						m_publisherSocket = NetMqTransportShared.Instance.GetSharedPublisherSocket(addressZeroMq);
+						m_publisherSocket = NetMqTransportShared.Instance(_loggerDelegate).GetSharedPublisherSocket(addressZeroMq);
 						m_initializePublisherDone = true;
 					}
 				}
@@ -116,18 +123,12 @@ namespace NetMQ.ReactiveExtensions
 				{
 					if (m_initializeSubscriberDone == false)
 					{
-						_loggerDelegate?.Invoke(string.Format("Subscriber socket connecting to: {0}\n", addressZeroMq));
-
-						m_subscriberSocket = NetMqTransportShared.Instance.GetSharedSubscriberSocket(addressZeroMq);
-
-						// this.SubscriberFilterName is set to the type T of the incoming class by default, so we can
-                        // have many types on the same transport.
-						m_subscriberSocket.Subscribe(this.SubscriberFilterName);
-
 						if (m_cancellationTokenSource == null)
 						{
 							m_cancellationTokenSource = new CancellationTokenSource();
 						}
+
+						m_subscriberSocket = NetMqTransportShared.Instance(_loggerDelegate).GetSharedSubscriberSocket(addressZeroMq);
 
 						ManualResetEvent threadReadySignal = new ManualResetEvent(false);
 
@@ -235,8 +236,17 @@ namespace NetMQ.ReactiveExtensions
 						};
 						m_thread.Start();
 
-						// Wait for thread to properly spin up.
-						threadReadySignal.WaitOne(TimeSpan.FromMilliseconds(3000));						
+						// Wait for subscriber thread to properly spin up.
+						threadReadySignal.WaitOne(TimeSpan.FromMilliseconds(3000));
+
+						// Intent: Now connect to the socket.
+						{
+							_loggerDelegate?.Invoke(string.Format("Subscriber socket connecting to: {0}\n", addressZeroMq));
+
+							// this.SubscriberFilterName is set to the type T of the incoming class by default, so we can
+							// have many types on the same transport.
+							m_subscriberSocket.Subscribe(this.SubscriberFilterName);
+						}
 
 						_loggerDelegate?.Invoke(string.Format("Subscriber: finished setup.\n"));
 

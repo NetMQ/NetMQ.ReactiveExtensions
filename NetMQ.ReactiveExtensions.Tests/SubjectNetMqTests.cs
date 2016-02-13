@@ -599,6 +599,11 @@ namespace NetMQ.ReactiveExtensions.Tests
 		[ProtoContract]
 		public class ClassNameIsLongerThenThirtyTwoCharactersForAbsolutelySure
 		{
+			public ClassNameIsLongerThenThirtyTwoCharactersForAbsolutelySure()
+			{
+				
+			}
+
 			public ClassNameIsLongerThenThirtyTwoCharactersForAbsolutelySure(int num, string name)
 			{
 				Num = num;

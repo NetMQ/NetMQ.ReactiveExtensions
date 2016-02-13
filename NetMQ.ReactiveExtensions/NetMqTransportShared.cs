@@ -11,6 +11,7 @@ using System.Diagnostics;
 using System.Threading;
 using NetMQ.Monitoring;
 using NetMQ.Sockets;
+// ReSharper disable ConvertToAutoProperty
 #endregion
 
 // ReSharper disable ConvertIfStatementToNullCoalescingExpression
@@ -27,30 +28,43 @@ namespace NetMQ.ReactiveExtensions
 		private static volatile NetMqTransportShared _instance;
 		private static readonly object _syncRoot = new object();
 
-		private NetMqTransportShared()
+		private NetMqTransportShared(Action<string> loggerDelegate = null)
 		{
+			this._loggerDelegate = loggerDelegate;
 		}
+
+		#region HighwaterMark
+		private int _highwaterMark = 2000 * 1000;
+
+		/// <summary>
+		///		Intent: Default amount of messages to queue in memory before discarding more.
+		/// </summary>
+		public int HighwaterMark
+		{
+			get { return _highwaterMark; }
+			set { _highwaterMark = value; }
+		}
+		#endregion
+
+		private readonly Action<string> _loggerDelegate;
 
 		/// <summary>
 		/// Intent: Singleton.
 		/// </summary>
-		public static NetMqTransportShared Instance
+		public static NetMqTransportShared Instance(Action<string> loggerDelegate = null)
 		{
-			get
+			if (_instance == null)
 			{
-				if (_instance == null)
+				lock (_syncRoot)
 				{
-					lock (_syncRoot)
+					if (_instance == null)
 					{
-						if (_instance == null)
-						{
-							_instance = new NetMqTransportShared();
-						}
+						_instance = new NetMqTransportShared(loggerDelegate);
 					}
 				}
-
-				return _instance;
 			}
+
+			return _instance;
 		}
 
 		#region Get Publisher Socket (if it's already been opened, we reuse it).
@@ -80,7 +94,7 @@ namespace NetMQ.ReactiveExtensions
 			{
 				Console.Write("Get new publisher socket.\n");
 
-				//_loggerDelegate?.Invoke(string.Format("Publisher socket binding to: {0}\n", addressZeroMq));
+				_loggerDelegate?.Invoke(string.Format("Publisher socket binding to: {0}\n", addressZeroMq));
 
 				publisherSocket = new PublisherSocket();
 
@@ -99,14 +113,14 @@ namespace NetMQ.ReactiveExtensions
 					monitor.StartAsync();
 				}
 
-				publisherSocket.Options.SendHighWatermark = 2000*1000;
+				publisherSocket.Options.SendHighWatermark = this.HighwaterMark;
 				publisherSocket.Bind(addressZeroMq);
 
 				// Corner case: wait until publisher socket is ready (see code below that sets "_publisherReadySignal").
 				{
 					Stopwatch sw = Stopwatch.StartNew();
 					m_publisherReadySignal.WaitOne(TimeSpan.FromMilliseconds(3000));
-					//_loggerDelegate?.Invoke(string.Format("Publisher: Waited {0} ms for binding.\n", sw.ElapsedMilliseconds));
+					_loggerDelegate?.Invoke(string.Format("Publisher: Waited {0} ms for binding.\n", sw.ElapsedMilliseconds));
 				}
 				{
 					monitor.Accepted -= Publisher_Event_Accepted;
@@ -122,20 +136,19 @@ namespace NetMQ.ReactiveExtensions
 
 		private void Publisher_Event_Listening(object sender, NetMQMonitorSocketEventArgs e)
 		{
-			//_loggerDelegate?.Invoke(string.Format("Publisher event: {0}\n", e.SocketEvent));
+			_loggerDelegate?.Invoke(string.Format("Publisher event: {0}\n", e.SocketEvent));
 			m_publisherReadySignal.Set();
 		}
 
 		private void Publisher_Event_Accepted(object sender, NetMQMonitorSocketEventArgs e)
 		{
-			//_loggerDelegate?.Invoke(string.Format("Publisher event: {0}\n", e.SocketEvent));
+			_loggerDelegate?.Invoke(string.Format("Publisher event: {0}\n", e.SocketEvent));
 			m_publisherReadySignal.Set();
 		}
 		#endregion
 		#endregion
 
 		#region Get Subscriber socket (if it's already been opened, we reuse it).
-		readonly Dictionary<string, SubscriberSocket> _dictAddressZeroMqToSubscriberSocket = new Dictionary<string, SubscriberSocket>();
 		private readonly object _initializeSubscriberLock = new object();
 		/// <summary>
 		/// Intent: See interface.
@@ -144,75 +157,12 @@ namespace NetMQ.ReactiveExtensions
 		{
 			lock (_initializeSubscriberLock)
 			{
-				if (_dictAddressZeroMqToSubscriberSocket.ContainsKey(addressZeroMq) == false)
-				{
-					_dictAddressZeroMqToSubscriberSocket[addressZeroMq] = GetNewSubscriberSocket(addressZeroMq, true);
-					return _dictAddressZeroMqToSubscriberSocket[addressZeroMq];
-				}
-				else
-				{
-					// Each subscriber on the same machine to have its own copy of the subscriber.
-					return GetNewSubscriberSocket(addressZeroMq, false);
-				}
+				// Must return a unique subscriber for every new ISubject of T.
+				var subscriberSocket = new SubscriberSocket();
+				subscriberSocket.Options.ReceiveHighWatermark = this.HighwaterMark;
+				subscriberSocket.Connect(addressZeroMq);
+				return subscriberSocket;
 			}
-		}
-
-		private readonly ManualResetEvent m_subscriberReadySignal = new ManualResetEvent(false);
-
-		private SubscriberSocket GetNewSubscriberSocket(string addressZeroMq, bool additionalWaitFirstTime)
-		{
-			var subscriberSocket = new SubscriberSocket();
-
-			// Corner case: wait until subscriber socket is ready (see code below that waits for
-			// "_subscriberReadySignal").
-			NetMQMonitor monitor = null;
-			if (additionalWaitFirstTime == true)
-			{
-				{
-					// Must ensure that we have a unique monitor name for every instance of this class.
-					string endpoint = string.Format("inproc://#SubjectNetMQ#Subscriber#{0}", addressZeroMq);
-
-					monitor = new NetMQMonitor(subscriberSocket,
-						endpoint,
-						SocketEvents.ConnectRetried | SocketEvents.Connected);
-					monitor.ConnectRetried += Subscriber_Event_ConnectRetried;
-					monitor.Connected += Subscriber_Event_Connected;
-					monitor.StartAsync();
-				}
-			}
-
-			subscriberSocket.Options.ReceiveHighWatermark = 2000*1000;
-			subscriberSocket.Connect(addressZeroMq);
-
-			// Corner case: wait until the publisher socket is ready (see code above that sets
-			// "_subscriberReadySignal").
-			if (additionalWaitFirstTime == true)
-			{
-				Stopwatch sw = Stopwatch.StartNew();
-				m_subscriberReadySignal.WaitOne(TimeSpan.FromMilliseconds(3000));
-				//_loggerDelegate?.Invoke(string.Format("Subscriber: Waited {0} ms for connection.\n", sw.ElapsedMilliseconds));
-
-				monitor.ConnectRetried -= Subscriber_Event_ConnectRetried;
-				monitor.Connected -= Subscriber_Event_Connected;
-
-				// Issue with NetMQ - cannot .Stop or .Dispose, or else it will dispose of the parent socket.
-				//monitor.Stop();
-				//monitor.Dispose();
-				Thread.Sleep(TimeSpan.FromMilliseconds(500));
-			}
-			return subscriberSocket;			
-		}
-
-		private void Subscriber_Event_Connected(object sender, NetMQMonitorSocketEventArgs e)
-		{
-			//_loggerDelegate?.Invoke(string.Format("Subscriber event: {0}\n", e.SocketEvent));
-			m_subscriberReadySignal.Set();
-		}
-
-		private void Subscriber_Event_ConnectRetried(object sender, NetMQMonitorIntervalEventArgs e)
-		{
-			//_loggerDelegate?.Invoke(string.Format("Subscriber event: {0}\n", e.SocketEvent));
-			m_subscriberReadySignal.Set();
 		}
 		#endregion
 	}
