@@ -71,7 +71,7 @@ To check out the demos, see:
 - Subscriber: Project `NetMQ.ReactiveExtensions.SampleSubscriber`
 - Sample unit tests: Project `NetMQ.ReactiveExtensions.Tests`
 
-## Notes
+## Notes - General
 
 - Compatible with all existing RX code. Can use `.Where()`, `.Select()`, `.Buffer()`, `.Throttle()`, etc.
 - Runs at >120,000 messages per second on localhost.
@@ -79,7 +79,7 @@ To check out the demos, see:
 - Properly passes exceptions across the wire.
 - Supported by a full suite of unit tests.
 
-## Shared Transport
+## Notes - Shared Transport
 
 As a shared transport is used beyind the scenes, we can reuse the same endpoint as many times as we want within the same process, e.g.:
 
