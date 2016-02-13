@@ -116,7 +116,7 @@
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="NetMQ.ReactiveExtensions.Tests.cs" />
+    <Compile Include="SubjectNetMqTests.cs" />
     <Compile Include="RouterDealerTest2.cs" />
     <Compile Include="RouterDealerTest1.cs" />
     <Compile Include="SerializeAnExceptionTests.cs" />
