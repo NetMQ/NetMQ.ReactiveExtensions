@@ -83,9 +83,9 @@ To check out the demos, see:
 
 *Note: this limitation may be removed in the next version which uses Router/Dealer sockets.*
 
-There are no limitations on the number of subscribers that can connect to a publisher on a single endpoint, e.g. `tcp://127.0.0.1:56001`. However, there are some limits on the number of publishers that can bind to this same endpoint, e.g. `tcp://127.0.0.1:56001`.
+There are no limitations on the number of subscribers on a single endpoint, e.g. `tcp://127.0.0.1:56001`. However, only one process can publish on an endpoint, e.g. `tcp://127.0.0.1:56001`.
 
-As a shared transport is used beyind the scenes, we can reuse the same publisher endpoint as many times as we want **within** the same process, e.g.:
+Within a process, a single shared transport is used for all publishing, e.g.:
 
 ```csharp
 var subject1 = new SubjectNetMQ<MyMessage1>("tcp://127.0.0.1:56001");
@@ -95,16 +95,16 @@ var subject2 = new SubjectNetMQ<MyMessage2>("tcp://127.0.0.1:56001");
 subject2.OnNext(42); // We are publishing, automatically reuses the shared transport.
 ```
 
-However, if a **second process** attempts to publish to the same endpoint, then this publisher endpoint will already be in use, and an exception will be thrown, e.g.
+However, if a **second process** attempts to bind to the publishing endpoint in the **first process**, an "in-use" exception will be thrown, e.g.
 
 ```csharp
 // Process 1
 var subject1 = new SubjectNetMQ<MyMessage1>("tcp://127.0.0.1:56001");
-subject1.OnNext(42); // We are publishing, automatically sets up a transport as a publisher.
+subject1.OnNext(42); // We are publishing, automatically binds as a publisher.
 
 // Process 2 (fails)
 var subject2 = new SubjectNetMQ<MyMessage2>("tcp://127.0.0.1:56001"); 
-subject1.OnNext(42); // We are publishing,  automatically attempts to set up a transport as a publisher (which fails as its in use).
+subject1.OnNext(42); // We are publishing,  automatically attempts to bind to the publisher (which fails as its in use).
 // throws exception at this point
 ```
 
