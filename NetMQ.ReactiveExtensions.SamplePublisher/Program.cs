@@ -14,11 +14,20 @@ namespace NetMQ.ReactiveExtensions.SampleServer
 		{
 			Console.Write("Reactive Extensions publisher demo:\n");
 
-			var subject = new SubjectNetMQ<MyMessage>("tcp://127.0.0.1:56001", loggerDelegate: msg => Console.Write(msg));
+			string endPoint = "tcp://127.0.0.1:56001";
+			if (args.Length >= 1)
+			{
+				endPoint = args[0];
+			}
 
+			Console.Write("Endpoint: {0}\n", endPoint);
+
+			var subject = new SubjectNetMQ<MyMessage>(endPoint, loggerDelegate: msg => Console.Write(msg));
+
+			// Debug: subscribe to ourself. If you run the "SampleSubscriber" project now, you will see the same
+            // messages appearing in that subscriber too.
 			subject.Subscribe(message =>
 			{
-				// Also subscribe to ourself!
 				Console.Write("Received: {0}, '{1}'.\n", message.Num, message.Name);
 			});
 
@@ -26,6 +35,8 @@ namespace NetMQ.ReactiveExtensions.SampleServer
 			while (true)
 			{
 				var message = new MyMessage(i, "Bob");
+
+				// When we call "OnNext", it binds a publisher to this endpoint endpoint.
 				subject.OnNext(message);
 
 				Console.Write("Published: {0}, '{1}'.\n", message.Num, message.Name);
