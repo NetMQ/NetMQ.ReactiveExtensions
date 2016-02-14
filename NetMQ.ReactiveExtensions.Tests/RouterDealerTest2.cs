@@ -9,6 +9,7 @@ using NUnit.Framework;
 
 namespace NetMQ.ReactiveExtensions.Tests
 {
+	[Ignore]
 	[TestFixture]
 	public class RouterDealerTest2
 	{
