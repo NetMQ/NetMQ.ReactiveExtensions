@@ -85,7 +85,7 @@ To check out the demos, see:
 
 There are no limitations on the number of subscribers on a single endpoint, e.g. `tcp://127.0.0.1:56001`. However, only one process can publish on an endpoint, e.g. `tcp://127.0.0.1:56001`.
 
-Within a process, a single shared transport is used for all publishing, e.g.:
+Within a [process](http://superuser.com/questions/209654/whats-the-difference-between-an-application-process-and-services), a single shared transport is used for all publishing, e.g.:
 
 ```csharp
 var subject1 = new SubjectNetMQ<MyMessage1>("tcp://127.0.0.1:56001");
@@ -95,7 +95,7 @@ var subject2 = new SubjectNetMQ<MyMessage2>("tcp://127.0.0.1:56001");
 subject2.OnNext(42); // We are publishing, automatically reuses the shared transport.
 ```
 
-However, if a **second process** attempts to bind to the publishing endpoint in the **first process**, an "in-use" exception will be thrown, e.g.
+However, if a [**second process**](http://superuser.com/questions/209654/whats-the-difference-between-an-application-process-and-services) attempts to bind to the publishing endpoint in the [**first process**](http://superuser.com/questions/209654/whats-the-difference-between-an-application-process-and-services), an "in-use" exception will be thrown, e.g.
 
 ```csharp
 // Process 1
@@ -104,7 +104,7 @@ subject1.OnNext(42); // We are publishing, automatically binds as a publisher.
 
 // Process 2 (fails)
 var subject2 = new SubjectNetMQ<MyMessage2>("tcp://127.0.0.1:56001"); 
-subject1.OnNext(42); // We are publishing,  automatically attempts to bind to the publisher.
+subject1.OnNext(42); // We are publishing, automatically attempts to bind to the publisher.
 // throws exception at this point: "Cannot bind to 'tcp://127.0.0.1:56001'.
 ```
 
