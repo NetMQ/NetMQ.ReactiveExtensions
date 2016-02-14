@@ -97,7 +97,7 @@ namespace NetMQ.ReactiveExtensions
 				NetMQMonitor monitor;
 				{
 					// Must ensure that we have a unique monitor name for every instance of this class.
-					string endPoint = string.Format("inproc://#SubjectNetMQ#Publisher#{0}", addressZeroMq);
+					string endPoint = string.Format("inproc://#SubjectNetMQ#Publisher#{0}#{1}", addressZeroMq, Guid.NewGuid().ToString());
 					monitor = new NetMQMonitor(publisherSocket,
 						endPoint,
 						SocketEvents.Accepted | SocketEvents.Listening
@@ -108,8 +108,16 @@ namespace NetMQ.ReactiveExtensions
 				}
 
 				publisherSocket.Options.SendHighWatermark = this.HighwaterMark;
-				publisherSocket.Bind(addressZeroMq);
-
+				try
+				{
+					publisherSocket.Bind(addressZeroMq);
+				}
+				catch (NetMQException ex)
+				{
+					// This is usually because the address is in use.
+					throw new Exception(string.Format("Error E56874. Cannot bind publisher to '{0}'. 95% probability that this is caused by trying to bind a publisher to a port already in use by another process. To fix, choose a unique publisher port for this process. For more on this error, see 'Readme.md' (or the GitHub homepage for NetMQ.ReactiveExtensions).", addressZeroMq), ex);
+				}
+				
 				// Corner case: wait until publisher socket is ready (see code below that sets "_publisherReadySignal").
 				{
 					Stopwatch sw = Stopwatch.StartNew();
