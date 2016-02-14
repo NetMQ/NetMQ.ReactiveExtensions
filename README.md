@@ -105,7 +105,7 @@ subject1.OnNext(42); // We are publishing, automatically binds as a publisher.
 // Process 2 (fails)
 var subject2 = new SubjectNetMQ<MyMessage2>("tcp://127.0.0.1:56001"); 
 subject1.OnNext(42); // We are publishing,  automatically attempts to bind to the publisher (which fails as its in use).
-// throws exception at this point
+// throws exception at this point: "Cannot bind to 'tcp://127.0.0.1:56001'.
 ```
 
 In practice, this is probably what we want: we don't want two processes publishing on the same endpoint, as the subscribers will get duplicate messages. This could be solved by replacing the Pub/Sub with Router/Dealer behind the scenes, however, this introduces other, more advanced limitations (e.g. do we want the same messages to be duplicated on each subscriber, and what if the process that hosts the Dealer is stopped?).
