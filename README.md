@@ -81,7 +81,11 @@ To check out the demos, see:
 
 ## Notes - Shared Transport
 
-As a shared transport is used beyind the scenes, we can reuse the same endpoint as many times as we want within the same process, e.g.:
+*Note: this limitation may be removed in the next version which uses Router/Dealer sockets.*
+
+There are no limitations on the number of subscribers that can connect to a publisher on a single endpoint, e.g. `tcp://127.0.0.1:56001`. However, there are some limits on the number of publishers that can bind to this same endpoint, e.g. `tcp://127.0.0.1:56001`.
+
+As a shared transport is used beyind the scenes, we can reuse the same publisher endpoint as many times as we want **within** the same process, e.g.:
 
 ```csharp
 var subject1 = new SubjectNetMQ<MyMessage1>("tcp://127.0.0.1:56001");
@@ -91,7 +95,7 @@ var subject2 = new SubjectNetMQ<MyMessage2>("tcp://127.0.0.1:56001");
 subject2.OnNext(42); // We are publishing, automatically reuses the shared transport.
 ```
 
-However, if a *second process* attempts to publish to the same endpoint, then this endpoint will already be in use, and an exception will be thrown, e.g.
+However, if a **second process** attempts to publish to the same endpoint, then this publisher endpoint will already be in use, and an exception will be thrown, e.g.
 
 ```csharp
 // Process 1
@@ -101,6 +105,7 @@ subject1.OnNext(42); // We are publishing, automatically sets up a transport as 
 // Process 2 (fails)
 var subject2 = new SubjectNetMQ<MyMessage2>("tcp://127.0.0.1:56001"); 
 subject1.OnNext(42); // We are publishing,  automatically attempts to set up a transport as a publisher (which fails as its in use).
+// throws exception at this point
 ```
 
 In practice, this is probably what we want: we don't want two processes publishing on the same endpoint, as the subscribers will get duplicate messages. This could be solved by replacing the Pub/Sub with Router/Dealer behind the scenes, however, this introduces other, more advanced limitations (e.g. do we want the same messages to be duplicated on each subscriber, and what if the process that hosts the Dealer is stopped?).
