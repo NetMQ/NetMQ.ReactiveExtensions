@@ -104,7 +104,7 @@ subject1.OnNext(42); // We are publishing, automatically binds as a publisher.
 
 // Process 2 (fails)
 var subject2 = new SubjectNetMQ<MyMessage2>("tcp://127.0.0.1:56001"); 
-subject1.OnNext(42); // We are publishing,  automatically attempts to bind to the publisher (which fails as its in use).
+subject1.OnNext(42); // We are publishing,  automatically attempts to bind to the publisher.
 // throws exception at this point: "Cannot bind to 'tcp://127.0.0.1:56001'.
 ```
 
