@@ -71,6 +71,11 @@ To check out the demos, see:
 - Subscriber: Project `NetMQ.ReactiveExtensions.SampleSubscriber`
 - Sample unit tests: Project `NetMQ.ReactiveExtensions.Tests`
 
+# Projects like this one
+
+- See [Obvs](https://github.com/inter8ection/Obvs), an fantastic RX wrapper which supports many transport layers including NetMQ, RabbitMQ and Azure, and many serialization methods including ProtoBuf and MsgPack.
+- Search for [all packages on NuGet that depend on RX](http://nugetmusthaves.com/Dependencies/Rx-Linq), and pick out the ones that are related to message buses.
+
 ## Notes - General
 
 - Compatible with all existing RX code. Can use `.Where()`, `.Select()`, `.Buffer()`, `.Throttle()`, etc.
