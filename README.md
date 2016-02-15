@@ -71,7 +71,7 @@ To check out the demos, see:
 - Subscriber: Project `NetMQ.ReactiveExtensions.SampleSubscriber`
 - Sample unit tests: Project `NetMQ.ReactiveExtensions.Tests`
 
-# Projects like this one
+## Projects like this one
 
 - See [Obvs](https://github.com/inter8ection/Obvs), an fantastic RX wrapper which supports many transport layers including NetMQ, RabbitMQ and Azure, and many serialization methods including ProtoBuf and MsgPack.
 - Search for [all packages on NuGet that depend on RX](http://nugetmusthaves.com/Dependencies/Rx-Linq), and pick out the ones that are related to message buses.
@@ -114,6 +114,8 @@ subject1.OnNext(42); // We are publishing, automatically attempts to bind to the
 ```
 
 In practice, this is probably what we want: we don't want two processes publishing on the same endpoint, as the subscribers will get duplicate messages. This could be solved by replacing the Pub/Sub with Router/Dealer behind the scenes, however, this introduces other, more advanced limitations (e.g. do we want the same messages to be duplicated on each subscriber, and what if the process that hosts the Dealer is stopped?).
+
+The bottom line is that if we want good support for many-to-many node communication, we will have to support a transport that has some form of message broker, in much the same way that [Obvs](https://github.com/inter8ection/Obvs) currently does.
 
 ## Wiki
 
