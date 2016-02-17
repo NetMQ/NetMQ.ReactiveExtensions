@@ -38,8 +38,13 @@ namespace NetMQ.ReactiveExtensions
 		LazyConnectOnFirstUse = 0,
 
 		/// <summary>
-		/// Intent: (currently unsupported). The network connections are created when the class is instantiated.
+		/// Intent: Bind to the publisher right now.
 		/// </summary>
-		InstantConnectOnClassInstantiation = 1,
+		SetupPublisherTransportNow = 1,
+
+		/// <summary>
+		/// Intent: Connect to the subscriber right now.
+		/// </summary>
+		SetupSubscriberTransportNow = 2,
 	}
 }

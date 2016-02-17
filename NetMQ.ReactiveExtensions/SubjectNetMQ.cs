@@ -77,15 +77,22 @@ namespace NetMQ.ReactiveExtensions
 
 			if (string.IsNullOrEmpty(AddressZeroMq))
 			{
-				throw new Exception("Error. Must define the address for ZeroMQ.");
+				throw new Exception("Error E76244. Must define the endpoint address for ZeroMQ to connect (or bind) to.");
 			}
 
-			if (whenToCreateNetworkConnection == WhenToCreateNetworkConnection.InstantConnectOnClassInstantiation)
+			switch (whenToCreateNetworkConnection)
 			{
-				throw new ArgumentException(
-					"Argument exception: \"whenToCreateNetworkConnection == WhenToCreateNetworkConnection.InstantConnectOnClassInstantiation\" is not supported for reasons of efficiency.\n" +
-				    "By default, this class will lazily create a subscriber when '.Subscriber()' is first called, and lazily " +
-					"create a publisher when '.OnNext()', '.OnError()', or '.OnCompleted()' are called for the first time.");
+				case WhenToCreateNetworkConnection.LazyConnectOnFirstUse:
+					// (default) Do nothing; will be instantiated on first use.
+					break;
+				case WhenToCreateNetworkConnection.SetupPublisherTransportNow:
+					InitializePublisherOnFirstUse(addressZeroMq);
+					break;
+				case WhenToCreateNetworkConnection.SetupSubscriberTransportNow:
+					InitializeSubscriberOnFirstUse(addressZeroMq);
+					break;
+				default:
+					throw new Exception("Error E38745. Internal error; at least one publisher or subscriber must be instantiated.");
 			}
 		}
 
