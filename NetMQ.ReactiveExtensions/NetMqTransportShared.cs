@@ -67,7 +67,7 @@ namespace NetMQ.ReactiveExtensions
 		/// </summary>
 		public PublisherSocket GetSharedPublisherSocket(string addressZeroMq)
 		{
-			lock (m_initializePublisherLock)
+			lock (_initializePublisherLock)
 			{
 				if (_dictAddressZeroMqToPublisherSocket.ContainsKey(addressZeroMq) == false)
 				{
@@ -78,8 +78,8 @@ namespace NetMQ.ReactiveExtensions
 		}
 
 		#region Get publisher socket.
-		private readonly object m_initializePublisherLock = new object();
-		private readonly ManualResetEvent m_publisherReadySignal = new ManualResetEvent(false);
+		private readonly object _initializePublisherLock = new object();
+		private readonly ManualResetEvent _publisherReadySignal = new ManualResetEvent(false);
 		readonly Dictionary<string, PublisherSocket> _dictAddressZeroMqToPublisherSocket = new Dictionary<string, PublisherSocket>();
 
 		private PublisherSocket GetNewPublisherSocket(string addressZeroMq)
@@ -121,7 +121,7 @@ namespace NetMQ.ReactiveExtensions
 				// Corner case: wait until publisher socket is ready (see code below that sets "_publisherReadySignal").
 				{
 					Stopwatch sw = Stopwatch.StartNew();
-					m_publisherReadySignal.WaitOne(TimeSpan.FromMilliseconds(3000));
+					_publisherReadySignal.WaitOne(TimeSpan.FromMilliseconds(3000));
 					_loggerDelegate?.Invoke(string.Format("Publisher: Waited {0} ms for binding.\n", sw.ElapsedMilliseconds));
 				}
 				{
@@ -139,13 +139,13 @@ namespace NetMQ.ReactiveExtensions
 		private void Publisher_Event_Listening(object sender, NetMQMonitorSocketEventArgs e)
 		{
 			_loggerDelegate?.Invoke(string.Format("Publisher event: {0}\n", e.SocketEvent));
-			m_publisherReadySignal.Set();
+			_publisherReadySignal.Set();
 		}
 
 		private void Publisher_Event_Accepted(object sender, NetMQMonitorSocketEventArgs e)
 		{
 			_loggerDelegate?.Invoke(string.Format("Publisher event: {0}\n", e.SocketEvent));
-			m_publisherReadySignal.Set();
+			_publisherReadySignal.Set();
 		}
 		#endregion
 		#endregion

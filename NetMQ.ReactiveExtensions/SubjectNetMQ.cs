@@ -25,12 +25,12 @@ namespace NetMQ.ReactiveExtensions
 		#endregion
 
 		// ReSharper disable once NotAccessedField.Local
-		private readonly WhenToCreateNetworkConnection _mWhenToCreateNetworkConnection;
-		private CancellationTokenSource m_cancellationTokenSource;
+		private readonly WhenToCreateNetworkConnection _whenToCreateNetworkConnection;
+		private CancellationTokenSource _cancellationTokenSource;
 		private readonly Action<string> _loggerDelegate;
 
-		private readonly List<IObserver<T>> m_subscribers = new List<IObserver<T>>();
-		private readonly object m_subscribersLock = new object();
+		private readonly List<IObserver<T>> _subscribers = new List<IObserver<T>>();
+		private readonly object _subscribersLock = new object();
 
 		/// <summary>
 		/// Intent: See interface.
@@ -42,8 +42,8 @@ namespace NetMQ.ReactiveExtensions
 		/// <param name="loggerDelegate">(optional) If we want to look at messages generated within this class, specify a logger here.</param>
 		public SubjectNetMQ(string addressZeroMq, string subscriberFilterName = null, WhenToCreateNetworkConnection whenToCreateNetworkConnection = WhenToCreateNetworkConnection.LazyConnectOnFirstUse, CancellationTokenSource cancellationTokenSource = default(CancellationTokenSource), Action<string> loggerDelegate = null)
 		{
-			_mWhenToCreateNetworkConnection = whenToCreateNetworkConnection;
-			m_cancellationTokenSource = cancellationTokenSource;
+			_whenToCreateNetworkConnection = whenToCreateNetworkConnection;
+			_cancellationTokenSource = cancellationTokenSource;
 			_loggerDelegate = loggerDelegate;
 
 			if (subscriberFilterName == null)
@@ -97,20 +97,20 @@ namespace NetMQ.ReactiveExtensions
 		}
 
 		#region Initialize publisher on demand.
-		private PublisherSocket m_publisherSocket;
-		private volatile bool m_initializePublisherDone = false;
-		private readonly object m_initializePublisherLock = new object();
+		private PublisherSocket _publisherSocket;
+		private volatile bool _initializePublisherDone = false;
+		private readonly object _initializePublisherLock = new object();
 		private void InitializePublisherOnFirstUse(string addressZeroMq)
 		{
-			if (m_initializePublisherDone == false) // Double checked locking.
+			if (_initializePublisherDone == false) // Double checked locking.
 			{
-				lock (m_initializePublisherLock)
+				lock (_initializePublisherLock)
 				{
-					if (m_initializePublisherDone == false)
+					if (_initializePublisherDone == false)
 					{
 						_loggerDelegate?.Invoke(string.Format("Publisher socket binding to: {0}\n", AddressZeroMq));
-						m_publisherSocket = NetMqTransportShared.Instance(_loggerDelegate).GetSharedPublisherSocket(addressZeroMq);
-						m_initializePublisherDone = true;
+						_publisherSocket = NetMqTransportShared.Instance(_loggerDelegate).GetSharedPublisherSocket(addressZeroMq);
+						_initializePublisherDone = true;
 					}
 				}
 			}
@@ -118,38 +118,38 @@ namespace NetMQ.ReactiveExtensions
 		#endregion
 
 		#region Initialize subscriber on demand.
-		private SubscriberSocket m_subscriberSocket;
-		private volatile bool m_initializeSubscriberDone = false;
-		private Thread m_thread;
+		private SubscriberSocket _subscriberSocket;
+		private volatile bool _initializeSubscriberDone = false;
+		private Thread _thread;
 
 		private void InitializeSubscriberOnFirstUse(string addressZeroMq)
 		{
-			if (m_initializeSubscriberDone == false) // Double checked locking.
+			if (_initializeSubscriberDone == false) // Double checked locking.
 			{
-				lock (m_subscribersLock)
+				lock (_subscribersLock)
 				{
-					if (m_initializeSubscriberDone == false)
+					if (_initializeSubscriberDone == false)
 					{
-						if (m_cancellationTokenSource == null)
+						if (_cancellationTokenSource == null)
 						{
-							m_cancellationTokenSource = new CancellationTokenSource();
+							_cancellationTokenSource = new CancellationTokenSource();
 						}
 
-						m_subscriberSocket = NetMqTransportShared.Instance(_loggerDelegate).GetSharedSubscriberSocket(addressZeroMq);
+						_subscriberSocket = NetMqTransportShared.Instance(_loggerDelegate).GetSharedSubscriberSocket(addressZeroMq);
 
 						ManualResetEvent threadReadySignal = new ManualResetEvent(false);
 
-						m_thread = new Thread(() =>
+						_thread = new Thread(() =>
 						{
 							try
 							{
 								_loggerDelegate?.Invoke(string.Format("Thread initialized.\n"));
 								threadReadySignal.Set();
-								while (m_cancellationTokenSource.IsCancellationRequested == false)
+								while (_cancellationTokenSource.IsCancellationRequested == false)
 								{
 									//_loggerDelegate?.Invoke(string.Format("Received message for {0}.\n", typeof(T)));
 
-									string messageTopicReceived = m_subscriberSocket.ReceiveFrameString();
+									string messageTopicReceived = _subscriberSocket.ReceiveFrameString();
 									if (messageTopicReceived != SubscriberFilterName)
 									{
 										// This message is for another subscriber. This should never occur.
@@ -159,26 +159,26 @@ namespace NetMQ.ReactiveExtensions
 										return;
 #endif
 									}
-									var type = m_subscriberSocket.ReceiveFrameString();
+									var type = _subscriberSocket.ReceiveFrameString();
 									switch (type)
 									{
 										// Originated from "OnNext".
 										case "N":
-											T messageReceived = m_subscriberSocket.ReceiveFrameBytes().DeserializeProtoBuf<T>();
-											lock (m_subscribersLock)
+											T messageReceived = _subscriberSocket.ReceiveFrameBytes().DeserializeProtoBuf<T>();
+											lock (_subscribersLock)
 											{
-												m_subscribers.ForEach(o => o.OnNext(messageReceived));
+												_subscribers.ForEach(o => o.OnNext(messageReceived));
 											}
 											break;
 										// Originated from "OnCompleted".
 										case "C":
-											lock (m_subscribersLock)
+											lock (_subscribersLock)
 											{
-												m_subscribers.ForEach(o => o.OnCompleted());
+												_subscribers.ForEach(o => o.OnCompleted());
 
 												// We are done! We don't want to send any more messages to subscribers, and we
 												// want to close the listening socket.
-												m_cancellationTokenSource.Cancel();
+												_cancellationTokenSource.Cancel();
 											}
 											break;
 										// Originated from "OnException".
@@ -188,8 +188,8 @@ namespace NetMQ.ReactiveExtensions
 											try
 											{
 												// Not used, but useful for cross-platform debugging: we can read the error straight off the wire.
-												exceptionAsString = m_subscriberSocket.ReceiveFrameBytes().DeserializeProtoBuf<string>();
-												SerializableException exceptionWrapper = m_subscriberSocket.ReceiveFrameBytes().DeSerializeException();
+												exceptionAsString = _subscriberSocket.ReceiveFrameBytes().DeserializeProtoBuf<string>();
+												SerializableException exceptionWrapper = _subscriberSocket.ReceiveFrameBytes().DeSerializeException();
 												exception = exceptionWrapper.InnerException;
 											}
 											catch (Exception ex)
@@ -202,9 +202,9 @@ namespace NetMQ.ReactiveExtensions
 												exception = new Exception(exceptionAsString, ex);
 											}
 
-											lock (m_subscribersLock)
+											lock (_subscribersLock)
 											{
-												m_subscribers.ForEach(o => o.OnError(exception));
+												_subscribers.ForEach(o => o.OnError(exception));
 											}
 											break;
 										// Originated from a "Ping" request.
@@ -220,28 +220,28 @@ namespace NetMQ.ReactiveExtensions
 							catch (Exception ex)
 							{
 								_loggerDelegate?.Invoke(string.Format("Error E23844. Exception in threadName \"{0}\". Thread exiting. Exception: \"{1}\".\n", SubscriberFilterName, ex.Message));
-								lock (m_subscribersLock)
+								lock (_subscribersLock)
 								{
-									this.m_subscribers.ForEach((ob) => ob.OnError(ex));
+									this._subscribers.ForEach((ob) => ob.OnError(ex));
 								}
 							}
 							finally
 							{
-								lock (m_subscribersLock)
+								lock (_subscribersLock)
 								{
-									m_subscribers.Clear();
+									_subscribers.Clear();
 								}
-								m_cancellationTokenSource.Dispose();
+								_cancellationTokenSource.Dispose();
 
 								// Disconnect from the socket.
-								m_subscriberSocket.Dispose();
+								_subscriberSocket.Dispose();
 							}
 						})
 						{
 							Name = this.SubscriberFilterName,
 							IsBackground = true // Have to set it to background, or else it will not exit when the program exits.
 						};
-						m_thread.Start();
+						_thread.Start();
 
 						// Wait for subscriber thread to properly spin up.
 						threadReadySignal.WaitOne(TimeSpan.FromMilliseconds(3000));
@@ -252,12 +252,12 @@ namespace NetMQ.ReactiveExtensions
 
 							// this.SubscriberFilterName is set to the type T of the incoming class by default, so we can
 							// have many types on the same transport.
-							m_subscriberSocket.Subscribe(this.SubscriberFilterName);
+							_subscriberSocket.Subscribe(this.SubscriberFilterName);
 						}
 
 						_loggerDelegate?.Invoke(string.Format("Subscriber: finished setup.\n"));
 
-						m_initializeSubscriberDone = true;
+						_initializeSubscriberDone = true;
 					}
 				} // lock
 				Thread.Sleep(500); // Otherwise, the first item we subscribe  to may get missed by the subscriber.
@@ -268,9 +268,9 @@ namespace NetMQ.ReactiveExtensions
 		#region IObservable<T> (i.e. the subscriber)
 		public IDisposable Subscribe(IObserver<T> observer)
 		{
-			lock (m_subscribersLock)
+			lock (_subscribersLock)
 			{
-				this.m_subscribers.Add(observer);
+				this._subscribers.Add(observer);
 			}
 
 			InitializeSubscriberOnFirstUse(this.AddressZeroMq);
@@ -279,9 +279,9 @@ namespace NetMQ.ReactiveExtensions
 			// unsubscribe all subscribers.
 			return new AnonymousDisposable(() =>
 			{
-				lock (m_subscribersLock)
+				lock (_subscribersLock)
 				{
-					this.m_subscribers.Remove(observer);
+					this._subscribers.Remove(observer);
 				}
 			});
 		}
@@ -298,7 +298,7 @@ namespace NetMQ.ReactiveExtensions
 				byte[] serialized = message.SerializeProtoBuf<T>();
 
 				// Publish message using ZeroMQ as the transport mechanism.
-				m_publisherSocket.SendMoreFrame(SubscriberFilterName)
+				_publisherSocket.SendMoreFrame(SubscriberFilterName)
 					.SendMoreFrame("N") // "N", "E" or "C" for "OnNext", "OnError" or "OnCompleted".
 					.SendFrame(serialized);
 
@@ -339,7 +339,7 @@ namespace NetMQ.ReactiveExtensions
 			byte[] serializedException = exceptionWrapper.SerializeException();
 			string exceptionAsString = exception.ToString();
 
-			m_publisherSocket.SendMoreFrame(SubscriberFilterName)
+			_publisherSocket.SendMoreFrame(SubscriberFilterName)
 					.SendMoreFrame("E") // "N", "E" or "C" for "OnNext", "OnError" or "OnCompleted".
 					.SendMoreFrame(exceptionAsString.SerializeProtoBuf()) // Human readable exception. Added for 100%
                                                                           // cross-platform debugging, so we can read
@@ -364,7 +364,7 @@ namespace NetMQ.ReactiveExtensions
 		{
 			InitializePublisherOnFirstUse(this.AddressZeroMq);
 
-			m_publisherSocket.SendMoreFrame(SubscriberFilterName)
+			_publisherSocket.SendMoreFrame(SubscriberFilterName)
 				.SendFrame("C"); // "N", "E" or "C" for "OnNext", "OnError" or "OnCompleted".
 		}
 		#endregion
@@ -372,14 +372,14 @@ namespace NetMQ.ReactiveExtensions
 		#region Implement IDisposable.
 		public void Dispose()
 		{
-			lock (m_subscribersLock)
+			lock (_subscribersLock)
 			{
-				m_subscribers.Clear();
+				_subscribers.Clear();
 			}
-			m_cancellationTokenSource.Cancel();
+			_cancellationTokenSource.Cancel();
 
 			// Wait until the thread has exited.
-			bool threadExitedProperly = m_thread.Join(TimeSpan.FromSeconds(30));
+			bool threadExitedProperly = _thread.Join(TimeSpan.FromSeconds(30));
 			if (threadExitedProperly == false)
 			{
 				throw new Exception("Error E62724. Thread did not exit when requested.");
@@ -394,9 +394,9 @@ namespace NetMQ.ReactiveExtensions
 		{
 			get
 			{
-				lock (m_subscribersLock)
+				lock (_subscribersLock)
 				{
-					return this.m_subscribers.Count > 0;
+					return this._subscribers.Count > 0;
 				}
 			}
 		}
