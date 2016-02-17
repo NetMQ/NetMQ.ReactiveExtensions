@@ -8,7 +8,7 @@ namespace NetMQ.ReactiveExtensions
     /// https://github.com/NetMQ/NetMQ.ReactiveExtensions.
 	/// </summary>
 	/// <typeparam name="T"></typeparam>
-	public interface ISubjectNetMQ<T> : IObservable<T>, IObserver<T>, IDisposable
+	public interface ISubjectNetMQ<T> : IDisposable
 	{
 		/// <summary>
 		/// Intent: Subscriber Filter name. Defaults to the type name T. Allows many types to get sent over the same
@@ -20,11 +20,6 @@ namespace NetMQ.ReactiveExtensions
 		/// Intent: The current endpoint address specified in the constructor, e.g. "tcp://127.0.0.1:56001".
 		/// </summary>
 		string AddressZeroMq { get; }
-
-		/// <summary>
-		/// Intent: True if there are any subscribers registered in the current process.
-		/// </summary>
-		bool HasObservers { get; }
 	}
 
 	/// <summary>
