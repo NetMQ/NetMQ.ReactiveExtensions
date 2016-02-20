@@ -30,6 +30,8 @@ subject.Subscribe(message =>
 subject.OnNext(42); // Sends 42.
 ```
 
+This is great for a demo, but is not recommended for any real life application.
+
 For those of us familiar with Reactive Extensions (RX), `Subject<T>` is a combination of a publisher and a subscriber. If we are running a real-life application, we should separate out the publisher and the subscriber, because this means we can create the connection earlier which makes the transport setup more deterministic:
 
 ```csharp
@@ -42,7 +44,7 @@ subscriber.Subscribe(message =>
 publisher.OnNext(42); // Sends 42.
 ```
 
-If we want to run in separate processes:
+If we want to run in separate applications:
 
 ```csharp
 // Application 1
@@ -53,6 +55,13 @@ subscriber.Subscribe(message =>
 });
 
 // Application 2
+var subscriber = new SubscriberNetMQ<int>("tcp://127.0.0.1:56001");
+subscriber.Subscribe(message =>
+{
+	// Receives 42.
+});
+
+// Application 3
 var publisher = new PublisherNetMQ<int>("tcp://127.0.0.1:56001");
 publisher.OnNext(42); // Sends 42.
 ```
