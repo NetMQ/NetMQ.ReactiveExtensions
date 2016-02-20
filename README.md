@@ -109,7 +109,7 @@ To check out the demos, see:
 
 This library is good for any situation where we have one application that wants to publish data to many other applications (i.e. one-to-many publishing).
 
-Examples of good use cases:
+Examples of good use cases for this library:
 
 - A C# service wishes to publish data to an Excel plugin written in C#.
 - A C# service wishes to publish health statistics to any application that is listening.
@@ -119,7 +119,7 @@ Examples of good use cases:
 
 This library is *not* designed for many applications, all wanting to talk to each other (i.e. many-to-many publishing). If we want to solve this problem, we need some sort of centralized message broker sitting in the middle. This message broker makes configuration very easy: each application only has to know the address of the central message broker.
 
-Examples of bad use cases:
+Examples of bad use cases for this library:
 
 - A service bus where any service can talk to any other service.
 - If we suddenly realize that we have 7 applications using this library, and they all want to talk to each other.
