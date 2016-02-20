@@ -105,40 +105,61 @@ To check out the demos, see:
 - Properly passes exceptions across the wire.
 - Supported by a full suite of unit tests.
 
-## Notes - Shared Transport
+## Notes - Use Cases
 
-*Note: this limitation may be removed in the next version which uses Router/Dealer sockets.*
+This library is good for any situation where we have one application that wants to publish data to many other applications (i.e. one-to-many publishing).
+
+Examples of good use cases:
+
+- A C# service wishes to publish data to an Excel plugin written in C#.
+- A C# service wishes to publish health statistics to any application that is listening.
+- In Service Oriented Architecture (SOA), a single service wishes to publish data to all GUI applications that are listening.
+- We absolutely need good point-to-point performance (this library does 180,000 messages per second on localhost).
+- We want to use multicast, using the `pgm://` protocol.
+
+This library is *not* designed for many applications, all wanting to talk to each other (i.e. many-to-many publishing). If we want to solve this problem, we need some sort of centralized message broker sitting in the middle. This message broker makes configuration very easy: each application only has to know the address of the central message broker.
+
+Examples of bad use cases:
+
+- A service bus where any service can talk to any other service.
+- If we suddenly realize that we have 7 applications using this library, and they all want to talk to each other.
+
+If we really want good support for many-to-many communication, and we are not too worried about speed, we will have to try a transport that has some form of centralized message broker, see [Obvs](https://github.com/inter8ection/Obvs).
+
+There is a hybrid approach: use a message broker by default, and if we really need the speed, use this library, and use the message broker to fetch dynamic endpoint configuration. 
+
+## Notes - Shared Transport
 
 There are no limitations on the number of subscribers to a single endpoint, e.g. `tcp://127.0.0.1:56001`. However, only one process can publish on an endpoint, e.g. `tcp://127.0.0.1:56001`.
 
 Within a [process](http://superuser.com/questions/209654/whats-the-difference-between-an-application-process-and-services), a single shared transport is used for all publishing, e.g.:
 
 ```csharp
-var subject1 = new SubjectNetMQ<MyMessage1>("tcp://127.0.0.1:56001");
-subject1.OnNext(42); // We are publishing, automatically sets up a transport as a publisher.
+var publisher1 = new PublisherNetMQ<MyMessage1>("tcp://127.0.0.1:56001");
+subject1.OnNext(42); // Automatically sets up a transport as a publisher.
 
-var subject2 = new SubjectNetMQ<MyMessage2>("tcp://127.0.0.1:56001"); 
-subject2.OnNext(42); // We are publishing, automatically reuses the shared transport.
+var publisher2 = new PublisherNetMQ<MyMessage2>("tcp://127.0.0.1:56001"); 
+subject2.OnNext(42); // Sutomatically reuses the shared transport.
 ```
 
 However, if a [**second process**](http://superuser.com/questions/209654/whats-the-difference-between-an-application-process-and-services) attempts to bind to the publishing endpoint in the [**first process**](http://superuser.com/questions/209654/whats-the-difference-between-an-application-process-and-services), an "in-use" exception will be thrown, e.g.
 
 ```csharp
-// Process 1
-var subject1 = new SubjectNetMQ<MyMessage1>("tcp://127.0.0.1:56001");
-subject1.OnNext(42); // We are publishing, automatically binds as a publisher.
+// Application 1
+var publisher1 = new PublisherNetMQ<MyMessage1>("tcp://127.0.0.1:56001");
+subject1.OnNext(42); // Automatically binds as a publisher.
 
-// Process 2 (fails)
-var subject2 = new SubjectNetMQ<MyMessage2>("tcp://127.0.0.1:56001"); 
-subject1.OnNext(42); // We are publishing, automatically attempts to bind to the publisher.
+// Application 2 (fails)
+var publisher2 = new PublisherNetMQ<MyMessage2>("tcp://127.0.0.1:56001"); 
+subject1.OnNext(42); // Automatically attempts to bind to the publisher.
 // throws exception at this point: "Cannot bind to 'tcp://127.0.0.1:56001'.
 ```
 
-In practice, this is probably what we want: we don't want two processes publishing on the same endpoint, as the subscribers will get duplicate messages. This could be solved by replacing the Pub/Sub with Router/Dealer behind the scenes, however, this introduces other, more advanced limitations (e.g. do we want the same messages to be duplicated on each subscriber, and what if the process that hosts the Dealer is stopped?).
-
-The bottom line is that if we want good support for many-to-many node communication, we will have to support a transport that has some form of message broker, in much the same way that [Obvs](https://github.com/inter8ection/Obvs) currently does.
+If we really want good support for many-to-many communication, we will have to support a transport that has some form of centralized message broker, see [Obvs](https://github.com/inter8ection/Obvs).
 
 ## Wiki
 
 See the [Wiki with more documentation](https://github.com/NetMQ/NetMQ.ReactiveExtensions/wiki).
+
+
 
