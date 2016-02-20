@@ -29,7 +29,7 @@ namespace NetMQ.ReactiveExtensions
 		/// <param name="whenToCreateNetworkConnection">When to create the network connection.</param>
 		/// <param name="cancellationTokenSource">Allows graceful termination of all internal threads associated with this subject.</param>
 		/// <param name="loggerDelegate">(optional) If we want to look at messages generated within this class, specify a logger here.</param>
-		public SubscriberNetMq(string addressZeroMq, string subscriberFilterName = null, WhenToCreateNetworkConnection whenToCreateNetworkConnection = WhenToCreateNetworkConnection.LazyConnectOnFirstUse, CancellationTokenSource cancellationTokenSource = default(CancellationTokenSource), Action<string> loggerDelegate = null)
+		public SubscriberNetMq(string addressZeroMq, string subscriberFilterName = null, WhenToCreateNetworkConnection whenToCreateNetworkConnection = WhenToCreateNetworkConnection.SetupSubscriberTransportNow, CancellationTokenSource cancellationTokenSource = default(CancellationTokenSource), Action<string> loggerDelegate = null)
 		{
 			AddressZeroMq = addressZeroMq;
 			_cancellationTokenSource = cancellationTokenSource;

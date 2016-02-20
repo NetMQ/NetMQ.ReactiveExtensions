@@ -17,7 +17,7 @@ namespace NetMQ.ReactiveExtensions.Tests
 	public class NetMQ_ReactiveExtensions_Tests
 	{
 		[Test]
-		public void Simplest_Test()
+		public void Simplest_Test_Subject()
 		{
 			Console.WriteLine(TestContext.CurrentContext.Test.Name);
 
@@ -44,6 +44,39 @@ namespace NetMQ.ReactiveExtensions.Tests
 			{
 				Assert.Fail("Timed out, this test should complete in 10 seconds.");
 			}
+		}
+
+		[Test]
+		public void Simplest_Test_Publisher_To_Subscriber()
+		{
+			Console.WriteLine(TestContext.CurrentContext.Test.Name);
+
+			CountdownEvent cd = new CountdownEvent(5);
+			{
+				int freePort = TcpPortFree();
+
+				var publisher = new PublisherNetMq<int>("tcp://127.0.0.1:" + freePort, loggerDelegate: Console.Write);
+				var subscriber = new SubscriberNetMq<int>("tcp://127.0.0.1:" + freePort, loggerDelegate: Console.Write);
+
+				subscriber.Subscribe(o =>
+					{
+						Console.Write("Test 1: {0}\n", o);
+						cd.Signal();
+					},
+					ex => { Console.WriteLine("Exception! {0}", ex.Message); });
+
+				publisher.OnNext(38);
+				publisher.OnNext(39);
+				publisher.OnNext(40);
+				publisher.OnNext(41);
+				publisher.OnNext(42);
+			}
+
+			if (cd.Wait(TimeSpan.FromSeconds(10)) == false) // Blocks until _countdown.Signal has been called.
+			{
+				Assert.Fail("Timed out, this test should complete in 10 seconds.");
+			}
+
 		}
 
 
@@ -302,7 +335,7 @@ namespace NetMQ.ReactiveExtensions.Tests
 		}
 
 		[Test]
-		public static void Speed_Test()
+		public static void Speed_Test_Subject()
 		{
 			Stopwatch sw = new Stopwatch();
 			{
@@ -339,6 +372,49 @@ namespace NetMQ.ReactiveExtensions.Tests
 
 				sw.Stop();
 				Console.Write("\nElapsed time: {0} milliseconds ({1:0,000}/sec)\n", sw.ElapsedMilliseconds, max/sw.Elapsed.TotalSeconds);
+				// On my machine, achieved >120,000 messages per second.
+			}
+		}
+
+		[Test]
+		public static void Speed_Test_Publisher_Subscriber()
+		{
+			Stopwatch sw = new Stopwatch();
+			{
+				var max = 200 * 1000;
+
+				CountdownEvent cd = new CountdownEvent(max);
+				var receivedNum = 0;
+				{
+					Console.Write("Speed test with {0} messages:\n", max);
+
+					int freePort = TcpPortFree();
+					var publisher = new PublisherNetMq<int>("tcp://127.0.0.1:" + freePort, loggerDelegate: Console.Write);
+					var subscriber = new SubscriberNetMq<int>("tcp://127.0.0.1:" + freePort, loggerDelegate: Console.Write);
+
+					subscriber.Subscribe(i =>
+					{
+						receivedNum++;
+						cd.Signal();
+						if (i % 10000 == 0)
+						{
+							//Console.Write("*");
+						}
+					});
+
+					sw.Start();
+					for (int i = 0; i < max; i++)
+					{
+						publisher.OnNext(i);
+					}
+				}
+				if (cd.Wait(TimeSpan.FromSeconds(15)) == false) // Blocks until _countdown.Signal has been called.
+				{
+					Assert.Fail("\nTimed out, this test should complete in 10 seconds. receivedNum={0}", receivedNum);
+				}
+
+				sw.Stop();
+				Console.Write("\nElapsed time: {0} milliseconds ({1:0,000}/sec)\n", sw.ElapsedMilliseconds, max / sw.Elapsed.TotalSeconds);
 				// On my machine, achieved >120,000 messages per second.
 			}
 		}

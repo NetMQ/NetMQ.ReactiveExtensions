@@ -109,6 +109,7 @@
   <ItemGroup>
     <Compile Include="AnonymousDisposable.cs" />
     <Compile Include="INetMqTransportShared.cs" />
+    <Compile Include="IPublisherNetMq.cs" />
     <Compile Include="ISubjectNetMQ.cs" />
     <Compile Include="PublisherNetMq.cs" />
     <Compile Include="SerializeAnException.cs" />

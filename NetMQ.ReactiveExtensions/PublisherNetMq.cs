@@ -8,9 +8,9 @@ using NetMQ.Sockets;
 namespace NetMQ.ReactiveExtensions
 {
 	/// <summary>
-	/// 
+	/// Intent: Publisher.
 	/// </summary>
-	public class PublisherNetMq<T> : ISubjectNetMQ<T>, IObserver<T>
+	public class PublisherNetMq<T> : ISubjectNetMQ<T>, IObserver<T>, IPublisherNetMq<T>
 	{
 		private readonly CancellationTokenSource _cancellationTokenSource;
 		private readonly Action<string> _loggerDelegate;
@@ -32,12 +32,6 @@ namespace NetMQ.ReactiveExtensions
 		/// <returns></returns>
 		public PublisherNetMq(string addressZeroMq, string subscriberFilterName = null, WhenToCreateNetworkConnection whenToCreateNetworkConnection = WhenToCreateNetworkConnection.SetupPublisherTransportNow, CancellationTokenSource cancellationTokenSource = default(CancellationTokenSource), Action<string> loggerDelegate = null)
 		{
-			/*return new SubjectNetMQ<T>(
-				subscriberFilterName: subscriberFilterName,
-				addressZeroMq: addressZeroMq,
-				cancellationTokenSource: cancellationTokenSource,
-				loggerDelegate: loggerDelegate);#1#*/
-
 			_cancellationTokenSource = cancellationTokenSource;
 			_loggerDelegate = loggerDelegate;
 			_whenToCreateNetworkConnection = whenToCreateNetworkConnection;

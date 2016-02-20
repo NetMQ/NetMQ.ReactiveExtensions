@@ -18,8 +18,8 @@ namespace NetMQ.ReactiveExtensions
 
 		public SubjectNetMQ(string addressZeroMq, string subscriberFilterName = null, WhenToCreateNetworkConnection whenToCreateNetworkConnection = WhenToCreateNetworkConnection.LazyConnectOnFirstUse, CancellationTokenSource cancellationTokenSource = default(CancellationTokenSource), Action<string> loggerDelegate = null)
 		{
-			_publisher = new PublisherNetMq<T>(addressZeroMq, subscriberFilterName, whenToCreateNetworkConnection, cancellationTokenSource, loggerDelegate);
-			_subscriber = new SubscriberNetMq<T>(addressZeroMq, subscriberFilterName, whenToCreateNetworkConnection, cancellationTokenSource, loggerDelegate);
+			_publisher = new PublisherNetMq<T>(addressZeroMq, subscriberFilterName, WhenToCreateNetworkConnection.LazyConnectOnFirstUse, cancellationTokenSource, loggerDelegate);
+			_subscriber = new SubscriberNetMq<T>(addressZeroMq, subscriberFilterName, WhenToCreateNetworkConnection.LazyConnectOnFirstUse, cancellationTokenSource, loggerDelegate);
 		}
 
 		public string SubscriberFilterName

@@ -21,7 +21,7 @@ namespace NetMQ.ReactiveExtensions.SampleClient
 
 			Console.Write("Endpoint: {0}\n", endPoint);
 
-			SubjectNetMQ<MyMessage> subject = new SubjectNetMQ<MyMessage>(endPoint, loggerDelegate: msg => Console.Write(msg));
+			SubscriberNetMq<MyMessage> subject = new SubscriberNetMq<MyMessage>(endPoint, loggerDelegate: msg => Console.Write(msg));
 			subject.Subscribe(message =>
 			{
 				Console.Write("Received: {0}, '{1}'.\n", message.Num, message.Name);

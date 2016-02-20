@@ -22,27 +22,35 @@ namespace NetMQ.ReactiveExtensions.SampleServer
 
 			Console.Write("Endpoint: {0}\n", endPoint);
 
-			var subject = new SubjectNetMQ<MyMessage>(endPoint, loggerDelegate: msg => Console.Write(msg));
-
-			// Debug: subscribe to ourself. If you run the "SampleSubscriber" project now, you will see the same
-            // messages appearing in that subscriber too.
-			subject.Subscribe(message =>
+			// Debug: Subscribe to ourself.
 			{
-				Console.Write("Received: {0}, '{1}'.\n", message.Num, message.Name);
-			});
-
-			int i = 0;
-			while (true)
-			{
-				var message = new MyMessage(i, "Bob");
-
-				// When we call "OnNext", it binds a publisher to this endpoint endpoint.
-				subject.OnNext(message);
-
-				Console.Write("Published: {0}, '{1}'.\n", message.Num, message.Name);
-				Thread.Sleep(TimeSpan.FromMilliseconds(1000));
-				i++;
+				var subscriber = new SubscriberNetMq<MyMessage>(endPoint, loggerDelegate: msg => Console.Write(msg));
+				// Debug: subscribe to ourself. If you run the "SampleSubscriber" project now, you will see the same
+				// messages appearing in that subscriber too.
+				subscriber.Subscribe(message =>
+				{
+					Console.Write("Received: {0}, '{1}'.\n", message.Num, message.Name);
+				});
 			}
+
+			// Publisher.
+			{
+				var publisher = new PublisherNetMq<MyMessage>(endPoint, loggerDelegate: msg => Console.Write(msg));
+
+				int i = 0;
+				while (true)
+				{
+					var message = new MyMessage(i, "Bob");
+
+					// When we call "OnNext", it binds a publisher to this endpoint endpoint.
+					publisher.OnNext(message);
+
+					Console.Write("Published: {0}, '{1}'.\n", message.Num, message.Name);
+					Thread.Sleep(TimeSpan.FromMilliseconds(1000));
+					i++;
+				}
+			}
+
 			// NOTE: If you run the "SampleSubscriber" project now, you will see the same messages appearing in the subscriber.
 		}
 	}
