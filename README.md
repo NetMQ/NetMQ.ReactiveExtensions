@@ -19,7 +19,7 @@ subject.Subscribe(message =>
 subject.OnNext(42);
 ```
 
-The new API is virtually identical:
+The new API starts with a drop-in replacement for `Subject<T>`:
 
 ```csharp
 var subject = new SubjectNetMQ<int>("tcp://127.0.0.1:56001");
@@ -27,22 +27,34 @@ subject.Subscribe(message =>
 {
 	// Receives 42.
 });
-subject.OnNext(42);
+subject.OnNext(42); // Sends 42.
+```
+
+For those of us familiar with Reactive Extensions (RX), `Subject<T>` is a combination of a publisher and a subscriber. If we are running a real-life application, we should separate out the publisher and the subscriber, because this means we can create the connection earlier which makes the transport setup more deterministic:
+
+```csharp
+var publisher = new PublisherNetMQ<int>("tcp://127.0.0.1:56001");
+var subscriber = new PublisherNetMQ<int>("tcp://127.0.0.1:56001");
+subscriber.Subscribe(message =>
+{
+	// Receives 42.
+});
+publisher.OnNext(42); // Sends 42.
 ```
 
 If we want to run in separate processes:
 
 ```csharp
-// Machine 1
-var subject = new SubjectNetMQ<int>("tcp://127.0.0.1:56001");
-subject.Subscribe(message =>
+// Application 1
+var subscriber = new SubscriberNetMQ<int>("tcp://127.0.0.1:56001");
+subscriber.Subscribe(message =>
 {
 	// Receives 42.
 });
 
-// Machine 2
-var subject = new SubjectNetMQ<int>("tcp://127.0.0.1:56001");
-subject.OnNext(42); // Sends 42.
+// Application 2
+var publisher = new PublisherNetMQ<int>("tcp://127.0.0.1:56001");
+publisher.OnNext(42); // Sends 42.
 ```
 
 Currently, serialization is performed using [ProtoBuf](https://github.com/mgravell/protobuf-net "ProtoBuf"). It will handle simple types such as `int` without annotation, but if we want to send more complex classes, we have to annotate like this:
