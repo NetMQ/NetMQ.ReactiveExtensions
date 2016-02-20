@@ -107,9 +107,11 @@ To check out the demos, see:
 
 ## Notes - Use Cases
 
+### Good Use Cases
+
 This library is good for any situation where we have one application that wants to publish data to many other applications (i.e. one-to-many publishing).
 
-Examples of good use cases:
+Examples of good use cases for this library:
 
 - A C# service wishes to publish data to an Excel plugin written in C#.
 - A C# service wishes to publish health statistics to any application that is listening.
@@ -117,16 +119,18 @@ Examples of good use cases:
 - We absolutely need good point-to-point performance (this library does 180,000 messages per second on localhost).
 - We want to use multicast, using the `pgm://` protocol.
 
+### Bad Use Cases
+
 This library is *not* designed for many applications, all wanting to talk to each other (i.e. many-to-many publishing). If we want to solve this problem, we need some sort of centralized message broker sitting in the middle. This message broker makes configuration very easy: each application only has to know the address of the central message broker.
 
-Examples of bad use cases:
+Examples of bad use cases for this library:
 
 - A service bus where any service can talk to any other service.
 - If we suddenly realize that we have 7 applications using this library, and they all want to talk to each other.
 
 If we really want good support for many-to-many communication, and we are not too worried about speed, we will have to try a transport that has some form of centralized message broker, see [Obvs](https://github.com/inter8ection/Obvs).
 
-There is a hybrid approach: use a message broker by default, and if we really need the speed, use this library, and use the message broker to fetch dynamic endpoint configuration. 
+If we want many-to-many communication, and we also want ultra fast speed between two points, there is a hybrid approach: use a message broker by default for most things, and for speed, use this library, and use the message broker to fetch dynamic endpoint configuration. 
 
 ## Notes - Shared Transport
 
