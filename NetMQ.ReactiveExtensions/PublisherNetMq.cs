@@ -23,14 +23,14 @@ namespace NetMQ.ReactiveExtensions
 		///  <summary>
 		/// 	Intent: Create a new publisher, using NetMQ as the transport layer.
 		///  </summary>
-		///  <param name="addressZeroMq">ZeroMq address to bind to, e.g. "tcp://localhost:56001</param>
-		///  <param name="subscriberFilterName">Filter name on receiver. If you do not set this, it will default to the
-		///  type name of T, and everything will just work.</param>
+		/// <param name="addressZeroMq">ZeroMq address to bind to, e.g. "tcp://localhost:56001</param>
+		/// <param name="subscriberFilterName">Filter name on receiver. If you do not set this, it will default to the
+		///     type name of T, and everything will just work.</param>
+		/// <param name="whenToCreateNetworkConnection"></param>
 		/// <param name="cancellationTokenSource"></param>
 		/// <param name="loggerDelegate"></param>
-		/// <param name="whenToCreateNetworkConnection"></param>
 		/// <returns></returns>
-		public PublisherNetMq(string addressZeroMq, string subscriberFilterName = null, CancellationTokenSource cancellationTokenSource = default(CancellationTokenSource), Action<string> loggerDelegate = null, WhenToCreateNetworkConnection whenToCreateNetworkConnection = WhenToCreateNetworkConnection.SetupPublisherTransportNow)
+		public PublisherNetMq(string addressZeroMq, string subscriberFilterName = null, WhenToCreateNetworkConnection whenToCreateNetworkConnection = WhenToCreateNetworkConnection.SetupPublisherTransportNow, CancellationTokenSource cancellationTokenSource = default(CancellationTokenSource), Action<string> loggerDelegate = null)
 		{
 			/*return new SubjectNetMQ<T>(
 				subscriberFilterName: subscriberFilterName,
