@@ -15,7 +15,7 @@ namespace NetMQ.ReactiveExtensions
 	///	Intent: Pub/sub across different processes.
 	/// </summary>
 	/// <threadSafe>Yes</threadSafe>
-	public class SubjectNetMQ<T> : IDisposable, ISubjectNetMQ<T>
+	public class SubjectNetMQ<T> : IDisposable, ISubjectNetMQ<T>, IObservable<T>, IObserver<T>
 	{
 		#region Public
 

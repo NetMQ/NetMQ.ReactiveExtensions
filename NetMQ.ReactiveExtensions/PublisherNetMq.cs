@@ -60,7 +60,7 @@ namespace NetMQ.ReactiveExtensions
 				}
 				if (SubscriberFilterName.Length > 32)
 				{
-					throw new Exception("Error E38742. Internal error; subscription length can never be longer than 32 characters.");
+					throw new Exception("Error E38742. Internal error. Logically, at this point subscription length could never be longer than 32 characters.");
 				}
 			}
 
