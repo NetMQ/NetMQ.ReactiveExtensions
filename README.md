@@ -36,7 +36,7 @@ For those of us familiar with Reactive Extensions (RX), `Subject<T>` is a combin
 
 ```csharp
 var publisher = new PublisherNetMQ<int>("tcp://127.0.0.1:56001");
-var subscriber = new PublisherNetMQ<int>("tcp://127.0.0.1:56001");
+var subscriber = new SubscriberNetMQ<int>("tcp://127.0.0.1:56001");
 subscriber.Subscribe(message =>
 {
 	// Receives 42.
@@ -47,21 +47,21 @@ publisher.OnNext(42); // Sends 42.
 If we want to run in separate applications:
 
 ```csharp
-// Application 1
+// Application 1 (subscriber)
 var subscriber = new SubscriberNetMQ<int>("tcp://127.0.0.1:56001");
 subscriber.Subscribe(message =>
 {
 	// Receives 42.
 });
 
-// Application 2
+// Application 2 (subscriber)
 var subscriber = new SubscriberNetMQ<int>("tcp://127.0.0.1:56001");
 subscriber.Subscribe(message =>
 {
 	// Receives 42.
 });
 
-// Application 3
+// Application 3 (publisher)
 var publisher = new PublisherNetMQ<int>("tcp://127.0.0.1:56001");
 publisher.OnNext(42); // Sends 42.
 ```

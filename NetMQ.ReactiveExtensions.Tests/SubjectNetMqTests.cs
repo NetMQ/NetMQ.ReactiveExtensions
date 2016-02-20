@@ -710,3 +710,4 @@ namespace NetMQ.ReactiveExtensions.Tests
 		}
 	}
 }
+
