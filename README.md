@@ -143,7 +143,7 @@ var publisher1 = new PublisherNetMQ<MyMessage1>("tcp://127.0.0.1:56001");
 subject1.OnNext(42); // Automatically sets up a transport as a publisher.
 
 var publisher2 = new PublisherNetMQ<MyMessage2>("tcp://127.0.0.1:56001"); 
-subject2.OnNext(42); // Sutomatically reuses the shared transport.
+subject2.OnNext(42); // Automatically reuses the shared transport.
 ```
 
 However, if a [**second process**](http://superuser.com/questions/209654/whats-the-difference-between-an-application-process-and-services) attempts to bind to the publishing endpoint in the [**first process**](http://superuser.com/questions/209654/whats-the-difference-between-an-application-process-and-services), an "in-use" exception will be thrown, e.g.
