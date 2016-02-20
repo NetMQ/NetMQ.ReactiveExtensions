@@ -92,12 +92,6 @@ To check out the demos, see:
 - Subscriber: Project `NetMQ.ReactiveExtensions.SampleSubscriber`
 - Sample unit tests: Project `NetMQ.ReactiveExtensions.Tests`
 
-## Projects like this one
-
-- See [Obvs](https://github.com/inter8ection/Obvs), an fantastic RX wrapper which supports many transport layers including NetMQ, RabbitMQ and Azure, and many serialization methods including ProtoBuf and MsgPack.
-- See [Obvs.NetMQ](https://github.com/inter8ection/Obvs.Netmq), the RX wrapper with NetMQ as the transport layer. 
-- Search for [all packages on NuGet that depend on RX](http://nugetmusthaves.com/Dependencies/Rx-Linq), and pick out the ones that are related to message buses.
-
 ## Notes - General
 
 - Compatible with all existing RX code. Can use `.Where()`, `.Select()`, `.Buffer()`, `.Throttle()`, etc.
@@ -106,7 +100,15 @@ To check out the demos, see:
 - Properly passes exceptions across the wire.
 - Supported by a full suite of unit tests.
 
+## Notes - Projects like this one
+
+- See [Obvs](https://github.com/inter8ection/Obvs), an fantastic RX wrapper which supports many transport layers including NetMQ, RabbitMQ and Azure, and many serialization methods including ProtoBuf and MsgPack.
+- See [Obvs.NetMQ](https://github.com/inter8ection/Obvs.Netmq), the RX wrapper with NetMQ as the transport layer. 
+- Search for [all packages on NuGet that depend on RX](http://nugetmusthaves.com/Dependencies/Rx-Linq), and pick out the ones that are related to message buses.
+
 ## Notes - Use Cases
+
+This library is great for some use cases, and not so good for other use cases.
 
 ### Good Use Cases
 
@@ -122,16 +124,16 @@ Examples of good use cases for this library:
 
 ### Bad Use Cases
 
-This library is *not* designed for many applications, all wanting to talk to each other (i.e. many-to-many publishing), because configuration becomes very difficult as we need to keep track of many endpoints. If we want things to just work, we need some sort of centralized message broker sitting in the middle. This message broker makes configuration very easy: each application only has to know the address of the central message broker.
+This library is *not* designed for many applications all wanting to talk to each other (i.e. many-to-many publishing), because configuration becomes very difficult as we need to keep track of many endpoints. If we want things to just work, we need some sort of centralized message broker sitting in the middle. This message broker makes configuration very easy: each application only has to know the address of the central message broker.
 
 Examples of bad use cases for this library:
 
 - A service bus where any service can talk to any other service.
 - If we suddenly realize that we have 7 applications using this library, and they all want to talk to each other.
 
-If we really want good support for many-to-many communication, and we are not too worried about speed, we will have to try a transport that has some form of centralized message broker, see [Obvs](https://github.com/inter8ection/Obvs).
+If we really want good support for many-to-many communication, and we are not too worried about speed, we can try a RX wrapper that has support for transports which have centralized message brokers, see [Obvs](https://github.com/inter8ection/Obvs).
 
-If we want many-to-many communication, and we also want ultra fast speed for a handful of links in the network, there is a hybrid approach: use a message broker by default for most things, and for speed, use this library, and use the message broker to fetch dynamic endpoint configuration. 
+If we want many-to-many communication, and we also want ultra fast speed for a handful of point-to-point links in the network, there is a hybrid approach: use a message broker by default for most things, and for speed use this library, and use the message broker to fetch dynamic endpoint configuration. 
 
 ## Notes - Shared Transport
 
