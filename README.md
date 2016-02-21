@@ -118,13 +118,13 @@ Examples of good use cases for this library:
 
 - A C# service wishes to publish data to an Excel plugin written in C#.
 - A C# service wishes to publish health statistics to any application that is listening.
-- In Service Oriented Architecture (SOA), a single service wishes to publish data to all GUI applications that are listening.
-- We absolutely need good point-to-point performance (this library does 180,000 messages per second on localhost).
+- In Service Oriented Architecture (SOA), a single service wishes to publish low latency/high volume data to all GUI applications that are listening.
+- We need good performance (this library does 180,000 messages per second on localhost, which outperforms Tibco by a factor of 3.5).
 - We want to use multicast, using the `pgm://` protocol.
 
 ### Bad Use Cases
 
-This library is *not* designed for many applications all wanting to talk to each other (i.e. many-to-many publishing), because configuration becomes very difficult as we need to keep track of many endpoints. If we want things to just work, we need some sort of centralized message broker sitting in the middle. This message broker makes configuration very easy: each application only has to know the address of the central message broker.
+This library is *not* designed for many applications all wanting to talk to each other (i.e. many-to-many publishing), because configuration becomes very difficult as we need to keep track of so many endpoints. If we want things to just work with minimal configuratoin, we need some sort of centralized message broker sitting in the middle. This message broker makes configuration very easy: each application only has to know the address of the central message broker.
 
 Examples of bad use cases for this library:
 
@@ -133,7 +133,12 @@ Examples of bad use cases for this library:
 
 If we really want good support for many-to-many communication, and we are not too worried about speed, we can try a RX wrapper that has support for transports which have centralized message brokers, see [Obvs](https://github.com/inter8ection/Obvs).
 
-If we want many-to-many communication, and we also want ultra fast speed for a handful of point-to-point links in the network, there is a hybrid approach: use a message broker by default for most things, and for speed use this library, and use the message broker to fetch dynamic endpoint configuration. 
+If we want many-to-many communication, and we also want ultra fast speed for a handful of point-to-point links in the network, there is a hybrid approach:
+ 
+- By default, use a central message broker for ease of configuration;
+- If we need high speed links between certain nodes in the network, use this library (NetMQ.ReactiveExtensions), and use the message broker or a directory service to fetch the configuration endpoints dynamically.
+
+For more information, see [Broker vs. Brokerless](http://zeromq.org/whitepapers:brokerless). It should be noted that a broker based architecture is very easy to configure, as each application only has to know the address of the central message broker.
 
 ## Notes - Shared Transport
 
