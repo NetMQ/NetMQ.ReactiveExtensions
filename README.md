@@ -19,7 +19,7 @@ subject.Subscribe(message =>
 subject.OnNext(42);
 ```
 
-We start the demo with a drop-in replacement for `Subject<T>`:
+The new API starts with a drop-in replacement for `Subject<T>`:
 
 ```csharp
 var subject = new SubjectNetMQ<int>("tcp://127.0.0.1:56001");
@@ -64,19 +64,6 @@ subscriber.Subscribe(message =>
 // Application 3 (publisher)
 var publisher = new PublisherNetMQ<int>("tcp://127.0.0.1:56001");
 publisher.OnNext(42); // Sends 42.
-```
-
-As we are using RX, we can take advantage of all the RX goodness for filtering and buffering on the subscriber side:
-
-```csharp
-var subscriber = new SubscriberNetMQ<int>("tcp://127.0.0.1:56001");
-subscriber
-    .Where(o => o == 42) // Filter by 42
-    .Buffer(TimeSpan.FromMilliseconds(500)) // Batch up all of the events into 0.5 second intervals.
-    .Subscribe(
-{
-	
-});
 ```
 
 Currently, serialization is performed using [ProtoBuf](https://github.com/mgravell/protobuf-net "ProtoBuf"). It will handle simple types such as `int` without annotation, but if we want to send more complex classes, we have to annotate like this:
@@ -137,14 +124,14 @@ Examples of good use cases for this library:
 
 ### Bad Use Cases
 
-This library is *not* designed for many applications all wanting to talk to each other (i.e. many-to-many publishing), because configuration becomes very difficult as we need to keep track of so many endpoints. If we want things to just work with minimal configuration, we need some sort of centralized message broker sitting in the middle. This message broker makes configuration very easy: each application only has to know the address of the central message broker.
+This library is *not* designed for many applications all wanting to talk to each other (i.e. many-to-many publishing), because configuration becomes very difficult as we need to keep track of so many endpoints. If we want things to just work with minimal configuration, we need some sort of centralized message broker or a directory service sitting in the middle. This message broker or directory service makes configuration very easy: each application only has to connect to one endpoint.
 
 Examples of bad use cases for this library:
 
 - A service bus where any service can talk to any other service.
 - If we suddenly realize that we have 7 applications using this library, and they all want to talk to each other.
 
-If we really want good support for many-to-many communication, and we are not too worried about speed, we can try a RX wrapper that has support for transports which have centralized message brokers, see [Obvs](https://github.com/inter8ection/Obvs).
+### Broker vs. Brokerless, and the Hybrid approach
 
 If we want many-to-many communication, and we also want ultra fast speed for a handful of point-to-point links in the network, there is a hybrid approach:
  
@@ -152,6 +139,8 @@ If we want many-to-many communication, and we also want ultra fast speed for a h
 - If we need high speed links between certain nodes in the network, use this library (NetMQ.ReactiveExtensions), and use the message broker or a directory service to fetch the configuration endpoints dynamically.
 
 For more information, see [Broker vs. Brokerless](http://zeromq.org/whitepapers:brokerless). It should be noted that a broker based architecture is very easy to configure, as each application only has to know the address of the central message broker.
+
+If we really want good support for many-to-many communication, and we are not too worried about speed, we can try a RX wrapper that has support for transports which have centralized message brokers, see [Obvs](https://github.com/inter8ection/Obvs).
 
 ## Notes - Shared Transport
 
