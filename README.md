@@ -19,7 +19,7 @@ subject.Subscribe(message =>
 subject.OnNext(42);
 ```
 
-The new API starts with a drop-in replacement for `Subject<T>`:
+We start the demo with a drop-in replacement for `Subject<T>`:
 
 ```csharp
 var subject = new SubjectNetMQ<int>("tcp://127.0.0.1:56001");
@@ -64,6 +64,19 @@ subscriber.Subscribe(message =>
 // Application 3 (publisher)
 var publisher = new PublisherNetMQ<int>("tcp://127.0.0.1:56001");
 publisher.OnNext(42); // Sends 42.
+```
+
+As we are using RX, we can take advantage of all the RX goodness for filtering and buffering on the subscriber side:
+
+```csharp
+var subscriber = new SubscriberNetMQ<int>("tcp://127.0.0.1:56001");
+subscriber
+    .Where(o => o == 42) // Filter by 42
+    .Buffer(TimeSpan.FromMilliseconds(500)) // Batch up all of the events into 0.5 second intervals.
+    .Subscribe(
+{
+	
+});
 ```
 
 Currently, serialization is performed using [ProtoBuf](https://github.com/mgravell/protobuf-net "ProtoBuf"). It will handle simple types such as `int` without annotation, but if we want to send more complex classes, we have to annotate like this:
