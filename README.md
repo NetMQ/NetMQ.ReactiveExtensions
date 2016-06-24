@@ -137,7 +137,7 @@ Examples of good use cases for this library:
 
 ### Bad Use Cases
 
-This library is *not* designed for many applications all wanting to talk to each other (i.e. many-to-many publishing), because configuration becomes very difficult as we need to keep track of so many endpoints. If we want things to just work with minimal configuratoin, we need some sort of centralized message broker sitting in the middle. This message broker makes configuration very easy: each application only has to know the address of the central message broker.
+This library is *not* designed for many applications all wanting to talk to each other (i.e. many-to-many publishing), because configuration becomes very difficult as we need to keep track of so many endpoints. If we want things to just work with minimal configuration, we need some sort of centralized message broker sitting in the middle. This message broker makes configuration very easy: each application only has to know the address of the central message broker.
 
 Examples of bad use cases for this library:
 
