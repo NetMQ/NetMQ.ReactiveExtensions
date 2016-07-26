@@ -132,7 +132,10 @@ namespace NetMQ.ReactiveExtensions
 					//monitor.Dispose();
 				}
 			}
-			Thread.Sleep(650); // Otherwise, the first item we publish may get missed by the subscriber.
+
+            // Otherwise, the first item we publish may get missed by the subscriber. 500 milliseconds consistently works 
+            // locally, but occasionally fails on the AppVeyor build server. 650 milliseconds is optimal.
+            Thread.Sleep(650); 
 			return publisherSocket;
 		}
 
