@@ -201,6 +201,7 @@ namespace NetMQ.ReactiveExtensions.Tests
             {
                 var freePort = NUnitUtils.TcpPortFree();
                 var pubSub = new SubjectNetMQ<int>("tcp://127.0.0.1:" + freePort, loggerDelegate: Console.Write);
+                Thread.Sleep(TimeSpan.FromMilliseconds(500));
                 pubSub.Subscribe(
                     o =>
                     {
