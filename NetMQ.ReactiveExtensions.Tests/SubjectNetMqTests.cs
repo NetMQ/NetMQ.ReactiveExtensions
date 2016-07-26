@@ -17,7 +17,7 @@ namespace NetMQ.ReactiveExtensions.Tests
     [TestFixture]
     public class NetMQ_ReactiveExtensions_Tests
     {
-        public static TimeSpan Timeout = TimeSpan.FromSeconds(30);
+        public static TimeSpan Timeout = TimeSpan.FromSeconds(45);
 
         [Test]
         public void Simplest_Test_Subject()
