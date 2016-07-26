@@ -11,13 +11,13 @@ namespace NetMQ.ReactiveExtensions.Tests
         [Test]
         public void Can_Serialize_Class_Name_Longer_Then_Thirty_Two_Characters()
         {
-            TestUtils.PrintTestName();
+            NUnitUtils.PrintTestName();
 
-            var sw = new Stopwatch();
+            var sw = Stopwatch.StartNew();
 
             var cd = new CountdownEvent(5);
             {
-                var freePort = TestUtils.TcpPortFree();
+                var freePort = NUnitUtils.TcpPortFree();
 
                 var pubSub =
                     new SubjectNetMQ<ClassNameIsLongerThenThirtyTwoCharactersForAbsolutelySure>(
@@ -42,20 +42,20 @@ namespace NetMQ.ReactiveExtensions.Tests
                 Assert.Fail("Timed out, this test should complete in {0} seconds.", GlobalTimeout.Timeout.TotalSeconds);
             }
 
-            TestUtils.PrintElapsedTime(sw.Elapsed);
+            NUnitUtils.PrintElapsedTime(sw.Elapsed);
         }
 
 
         [Test]
         public void Can_Serialize_Using_Protobuf_With_Class()
         {
-            TestUtils.PrintTestName();
+            NUnitUtils.PrintTestName();
 
-            var sw = new Stopwatch();
+            var sw = Stopwatch.StartNew();
 
             var cd = new CountdownEvent(5);
             {
-                var freePort = TestUtils.TcpPortFree();
+                var freePort = NUnitUtils.TcpPortFree();
 
                 var pubSub = new SubjectNetMQ<MyMessageClassType1>("tcp://127.0.0.1:" + freePort,
                     loggerDelegate: Console.Write);
@@ -79,19 +79,19 @@ namespace NetMQ.ReactiveExtensions.Tests
                 Assert.Fail("Timed out, this test should complete in {0} seconds.", GlobalTimeout.Timeout.TotalSeconds);
             }
 
-            TestUtils.PrintElapsedTime(sw.Elapsed);
+            NUnitUtils.PrintElapsedTime(sw.Elapsed);
         }
 
         [Test]
         public void Can_Serialize_Using_Protobuf_With_Struct()
         {
-            TestUtils.PrintTestName();
+            NUnitUtils.PrintTestName();
 
-            var sw = new Stopwatch();
+            var sw = Stopwatch.StartNew();
 
             var cd = new CountdownEvent(5);
             {
-                var freePort = TestUtils.TcpPortFree();
+                var freePort = NUnitUtils.TcpPortFree();
 
                 var pubSub = new SubjectNetMQ<MyMessageStructType1>("tcp://127.0.0.1:" + freePort,
                     loggerDelegate: Console.Write);
@@ -115,19 +115,19 @@ namespace NetMQ.ReactiveExtensions.Tests
                 Assert.Fail("Timed out, this test should complete in {0} seconds.", GlobalTimeout.Timeout.TotalSeconds);
             }
 
-            TestUtils.PrintElapsedTime(sw.Elapsed);
+            NUnitUtils.PrintElapsedTime(sw.Elapsed);
         }
 
         [Test]
         public static void Disposing_Of_One_Does_Not_Dispose_Of_The_Other()
         {
-            TestUtils.PrintTestName();
-            var sw = new Stopwatch();
+            NUnitUtils.PrintTestName();
+            var sw = Stopwatch.StartNew();
 
             var max = 1000;
             var cd = new CountdownEvent(max);
             {
-                var freePort = TestUtils.TcpPortFree();
+                var freePort = NUnitUtils.TcpPortFree();
                 var pubSub = new SubjectNetMQ<int>("tcp://127.0.0.1:" + freePort, loggerDelegate: Console.Write);
                 var d1 = pubSub.Subscribe(o => { cd.Signal(); });
 
@@ -146,20 +146,20 @@ namespace NetMQ.ReactiveExtensions.Tests
                 Assert.Fail("Timed out, this test should complete in {0} seconds.", GlobalTimeout.Timeout.TotalSeconds);
             }
 
-            TestUtils.PrintElapsedTime(sw.Elapsed);
+            NUnitUtils.PrintElapsedTime(sw.Elapsed);
         }
 
 
         [Test]
         public void Initialize_Publisher_Then_Subscriber()
         {
-            TestUtils.PrintTestName();
+            NUnitUtils.PrintTestName();
 
-            var sw = new Stopwatch();
+            var sw = Stopwatch.StartNew();
 
             var cd = new CountdownEvent(5);
             {
-                var freePort = TestUtils.TcpPortFree();
+                var freePort = NUnitUtils.TcpPortFree();
 
                 var pubSub = new SubjectNetMQ<int>("tcp://127.0.0.1:" + freePort, loggerDelegate: Console.Write);
 
@@ -187,19 +187,19 @@ namespace NetMQ.ReactiveExtensions.Tests
                 Assert.Fail("Timed out, this test should complete in {0} seconds.", GlobalTimeout.Timeout.TotalSeconds);
             }
 
-            TestUtils.PrintElapsedTime(sw.Elapsed);
+            NUnitUtils.PrintElapsedTime(sw.Elapsed);
         }
 
         [Test]
         public void OnCompleted_Should_Get_Passed_To_Subscribers()
         {
-            TestUtils.PrintTestName();
+            NUnitUtils.PrintTestName();
 
-            var sw = new Stopwatch();
+            var sw = Stopwatch.StartNew();
 
             var weAreDone = new CountdownEvent(1);
             {
-                var freePort = TestUtils.TcpPortFree();
+                var freePort = NUnitUtils.TcpPortFree();
                 var pubSub = new SubjectNetMQ<int>("tcp://127.0.0.1:" + freePort, loggerDelegate: Console.Write);
                 pubSub.Subscribe(
                     o =>
@@ -227,19 +227,19 @@ namespace NetMQ.ReactiveExtensions.Tests
                 Assert.Fail("Timed out, this test should complete in {0} seconds.", GlobalTimeout.Timeout.TotalSeconds);
             }
 
-            TestUtils.PrintElapsedTime(sw.Elapsed);
+            NUnitUtils.PrintElapsedTime(sw.Elapsed);
         }
 
         [Test]
         public void OnException_Should_Get_Passed_To_Subscribers()
         {
-            TestUtils.PrintTestName();
+            NUnitUtils.PrintTestName();
 
-            var sw = new Stopwatch();
+            var sw = Stopwatch.StartNew();
 
             var weAreDone = new CountdownEvent(1);
             {
-                var freePort = TestUtils.TcpPortFree();
+                var freePort = NUnitUtils.TcpPortFree();
                 var pubSub = new SubjectNetMQ<int>("tcp://127.0.0.1:" + freePort, loggerDelegate: Console.Write);
                 pubSub.Subscribe(
                     o =>
@@ -263,19 +263,19 @@ namespace NetMQ.ReactiveExtensions.Tests
                 Assert.Fail("Timed out, this test should complete in {0} seconds.", GlobalTimeout.Timeout.TotalSeconds);
             }
 
-            TestUtils.PrintElapsedTime(sw.Elapsed);
+            NUnitUtils.PrintElapsedTime(sw.Elapsed);
         }
 
         [Test]
         public void Simplest_Fanout_Sub()
         {
-            TestUtils.PrintTestName();
+            NUnitUtils.PrintTestName();
 
-            var sw = new Stopwatch();
+            var sw = Stopwatch.StartNew();
 
             var cd = new CountdownEvent(3);
             {
-                var freePort = TestUtils.TcpPortFree();
+                var freePort = NUnitUtils.TcpPortFree();
                 var pubSub = new SubjectNetMQ<int>("tcp://127.0.0.1:" + freePort, loggerDelegate: Console.Write);
                 pubSub.Subscribe(o =>
                 {
@@ -304,19 +304,19 @@ namespace NetMQ.ReactiveExtensions.Tests
                 Assert.Fail("Timed out, this test should complete in {0} seconds.", GlobalTimeout.Timeout.TotalSeconds);
             }
 
-            TestUtils.PrintElapsedTime(sw.Elapsed);
+            NUnitUtils.PrintElapsedTime(sw.Elapsed);
         }
 
         [Test]
         public void Simplest_Test_Publisher_To_Subscriber()
         {
-            TestUtils.PrintTestName();
+            NUnitUtils.PrintTestName();
 
-            var sw = new Stopwatch();
+            var sw = Stopwatch.StartNew();
 
             var cd = new CountdownEvent(5);
             {
-                var freePort = TestUtils.TcpPortFree();
+                var freePort = NUnitUtils.TcpPortFree();
 
                 var publisher = new PublisherNetMq<int>("tcp://127.0.0.1:" + freePort, loggerDelegate: Console.Write);
                 var subscriber = new SubscriberNetMq<int>("tcp://127.0.0.1:" + freePort, loggerDelegate: Console.Write);
@@ -340,19 +340,19 @@ namespace NetMQ.ReactiveExtensions.Tests
                 Assert.Fail("Timed out, this test should complete in {0} seconds.", GlobalTimeout.Timeout.TotalSeconds);
             }
 
-            TestUtils.PrintElapsedTime(sw.Elapsed);
+            NUnitUtils.PrintElapsedTime(sw.Elapsed);
         }
 
         [Test]
         public void Simplest_Test_Subject()
         {
-            TestUtils.PrintTestName();
+            NUnitUtils.PrintTestName();
 
-            var sw = new Stopwatch();
+            var sw = Stopwatch.StartNew();
 
             var cd = new CountdownEvent(5);
             {
-                var freePort = TestUtils.TcpPortFree();
+                var freePort = NUnitUtils.TcpPortFree();
 
                 var pubSub = new SubjectNetMQ<int>("tcp://127.0.0.1:" + freePort, loggerDelegate: Console.Write);
                 pubSub.Subscribe(o =>
@@ -374,7 +374,7 @@ namespace NetMQ.ReactiveExtensions.Tests
                 Assert.Fail("Timed out, this test should complete in {0} seconds.", GlobalTimeout.Timeout.TotalSeconds);
             }
 
-            TestUtils.PrintElapsedTime(sw.Elapsed);
+            NUnitUtils.PrintElapsedTime(sw.Elapsed);
         }
     }
 }

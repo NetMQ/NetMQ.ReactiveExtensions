@@ -5,7 +5,7 @@ using NUnit.Framework;
 
 namespace NetMQ.ReactiveExtensions.Tests
 {
-    public static class TestUtils
+    public static class NUnitUtils
     {
         /// <summary>
         ///     Intent: Returns next free TCP/IP port. See
@@ -36,7 +36,7 @@ namespace NetMQ.ReactiveExtensions.Tests
 
         public static void PrintElapsedTime(TimeSpan sw, int? max = null)
         {
-            Console.Write("\nElapsed time: {0} milliseconds", sw.TotalMilliseconds);
+            Console.Write("\n*****\nElapsed time: {0} milliseconds", sw.TotalMilliseconds);
             if (max != null)
             {
                 Console.Write(" ({0:0,000}/sec)", (double) max/sw.TotalSeconds);

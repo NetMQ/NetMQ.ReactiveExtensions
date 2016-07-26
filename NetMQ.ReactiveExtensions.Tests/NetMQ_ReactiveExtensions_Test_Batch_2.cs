@@ -12,10 +12,10 @@ namespace NetMQ.ReactiveExtensions.Tests
         [Test]
         public void If_Message_Not_Serializable_By_Protobuf_Throw_A_Meaningful_Error()
         {
-            TestUtils.PrintTestName();
+            NUnitUtils.PrintTestName();
             var sw = Stopwatch.StartNew();
 
-            var freePort = TestUtils.TcpPortFree();
+            var freePort = NUnitUtils.TcpPortFree();
             var pubSub = new SubjectNetMQ<MessageNotSerializableByProtobuf>("tcp://127.0.0.1:" + freePort,
                 loggerDelegate: Console.Write);
             try
@@ -35,20 +35,20 @@ namespace NetMQ.ReactiveExtensions.Tests
                 Assert.Fail();
             }
 
-            TestUtils.PrintElapsedTime(sw.Elapsed);
+            NUnitUtils.PrintElapsedTime(sw.Elapsed);
         }
 
         [Test]
         public void PubSub_Should_Not_Crash_If_No_Thread_Sleep()
         {
-            TestUtils.PrintTestName();
+            NUnitUtils.PrintTestName();
             var swAll = Stopwatch.StartNew();
 
             using (var pub = new PublisherSocket())
             {
                 using (var sub = new SubscriberSocket())
                 {
-                    var freePort = TestUtils.TcpPortFree();
+                    var freePort = NUnitUtils.TcpPortFree();
                     pub.Bind("tcp://127.0.0.1:" + freePort);
                     sub.Connect("tcp://127.0.0.1:" + freePort);
 
@@ -75,19 +75,19 @@ namespace NetMQ.ReactiveExtensions.Tests
                     Console.WriteLine("Connected in {0} ms.", sw.ElapsedMilliseconds);
                 }
             }
-            TestUtils.PrintElapsedTime(swAll.Elapsed);
+            NUnitUtils.PrintElapsedTime(swAll.Elapsed);
         }
 
         [Test]
         public void Send_Two_Types_Simultaneously_Over_Same_Transport()
         {
-            TestUtils.PrintTestName();
+            NUnitUtils.PrintTestName();
             var sw = Stopwatch.StartNew();
 
             var cd1 = new CountdownEvent(5);
             var cd2 = new CountdownEvent(5);
             {
-                var freePort = TestUtils.TcpPortFree();
+                var freePort = NUnitUtils.TcpPortFree();
 
                 var pubSub1 = new SubjectNetMQ<MyMessageStructType1>("tcp://127.0.0.1:" + freePort,
                     loggerDelegate: Console.Write);
@@ -132,15 +132,15 @@ namespace NetMQ.ReactiveExtensions.Tests
                 Assert.Fail("Timed out, this test should complete in {0} seconds.", GlobalTimeout.Timeout.TotalSeconds);
             }
 
-            TestUtils.PrintElapsedTime(sw.Elapsed);
+            NUnitUtils.PrintElapsedTime(sw.Elapsed);
         }
 
         [Test]
         public static void Speed_Test_Publisher_Subscriber()
         {
-            TestUtils.PrintTestName();
+            NUnitUtils.PrintTestName();
 
-            var sw = new Stopwatch();
+            var sw = Stopwatch.StartNew();
             {
                 var max = 100*1000;
 
@@ -149,7 +149,7 @@ namespace NetMQ.ReactiveExtensions.Tests
                 {
                     Console.Write("Speed test with {0} messages:\n", max);
 
-                    var freePort = TestUtils.TcpPortFree();
+                    var freePort = NUnitUtils.TcpPortFree();
                     var publisher = new PublisherNetMq<int>("tcp://127.0.0.1:" + freePort,
                         loggerDelegate: Console.Write);
                     var subscriber = new SubscriberNetMq<int>("tcp://127.0.0.1:" + freePort,
@@ -179,18 +179,17 @@ namespace NetMQ.ReactiveExtensions.Tests
                         receivedNum);
                 }
 
-                sw.Stop();
                 // On my machine, achieved >120,000 messages per second.
-                TestUtils.PrintElapsedTime(sw.Elapsed, max);
+                NUnitUtils.PrintElapsedTime(sw.Elapsed, max);
             }
         }
 
         [Test]
         public static void Speed_Test_Subject()
         {
-            TestUtils.PrintTestName();
+            NUnitUtils.PrintTestName();
 
-            var sw = new Stopwatch();
+            var sw = Stopwatch.StartNew();
             {
                 var max = 100*1000;
 
@@ -199,7 +198,7 @@ namespace NetMQ.ReactiveExtensions.Tests
                 {
                     Console.Write("Speed test with {0} messages:\n", max);
 
-                    var freePort = TestUtils.TcpPortFree();
+                    var freePort = NUnitUtils.TcpPortFree();
                     var pubSub = new SubjectNetMQ<int>("tcp://127.0.0.1:" + freePort, loggerDelegate: Console.Write);
 
                     pubSub.Subscribe(i =>
@@ -225,18 +224,16 @@ namespace NetMQ.ReactiveExtensions.Tests
                         GlobalTimeout.Timeout.TotalSeconds, receivedNum);
                 }
 
-                sw.Stop();
-
                 // On my machine, achieved >120,000 messages per second.
-                TestUtils.PrintElapsedTime(sw.Elapsed, max);
+                NUnitUtils.PrintElapsedTime(sw.Elapsed, max);
             }
         }
 
         [Test]
         public void Test_Two_Subscribers()
         {
-            TestUtils.PrintTestName();
-            var swAll = Stopwatch.StartNew();
+            NUnitUtils.PrintTestName();
+            var sw = Stopwatch.StartNew();
 
             using (var pub = new PublisherSocket())
             {
@@ -244,7 +241,7 @@ namespace NetMQ.ReactiveExtensions.Tests
                 {
                     using (var sub2 = new SubscriberSocket())
                     {
-                        var freePort = TestUtils.TcpPortFree();
+                        var freePort = NUnitUtils.TcpPortFree();
                         pub.Bind("tcp://127.0.0.1:" + freePort);
                         sub1.Connect("tcp://127.0.0.1:" + freePort);
                         sub1.Subscribe("A");
@@ -253,7 +250,7 @@ namespace NetMQ.ReactiveExtensions.Tests
 
                         Thread.Sleep(500);
 
-                        var sw = Stopwatch.StartNew();
+                        var swInner = Stopwatch.StartNew();
                         {
                             pub.SendFrame("A\n"); // Ping.
                             {
@@ -282,11 +279,12 @@ namespace NetMQ.ReactiveExtensions.Tests
                                 }
                             }
                         }
-                        Console.WriteLine("Connected in {0} ms.", sw.ElapsedMilliseconds);
+                        Console.WriteLine("Connected in {0} ms.", swInner.ElapsedMilliseconds);
                     }
                 }
             }
-            TestUtils.PrintElapsedTime(swAll.Elapsed);
+
+            NUnitUtils.PrintElapsedTime(sw.Elapsed);
         }
     }
 }
