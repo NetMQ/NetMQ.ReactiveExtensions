@@ -102,8 +102,8 @@ namespace NetMQ.ReactiveExtensions
 						endPoint,
 						SocketEvents.Accepted | SocketEvents.Listening
 						);
-					monitor.Accepted += Publisher_Event_Accepted;
-					monitor.Listening += Publisher_Event_Listening;
+					monitor.Accepted += Publisher_Event_Accepted;                    
+                    monitor.Listening += Publisher_Event_Listening;
 					monitor.StartAsync();
 				}
 
@@ -132,7 +132,7 @@ namespace NetMQ.ReactiveExtensions
 					//monitor.Dispose();
 				}
 			}
-			Thread.Sleep(500); // Otherwise, the first item we publish may get missed by the subscriber.
+			Thread.Sleep(650); // Otherwise, the first item we publish may get missed by the subscriber.
 			return publisherSocket;
 		}
 
