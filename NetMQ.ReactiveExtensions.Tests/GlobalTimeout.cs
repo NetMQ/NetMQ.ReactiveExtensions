@@ -6,7 +6,7 @@ namespace NetMQ.ReactiveExtensions.Tests
     {
         static GlobalTimeout()
         {
-            Timeout = TimeSpan.FromSeconds(240);
+            Timeout = TimeSpan.FromSeconds(60);
         }
 
         public static TimeSpan Timeout { get; set; }
