@@ -217,11 +217,15 @@ namespace NetMQ.ReactiveExtensions.Tests
 
             var sw = Stopwatch.StartNew();
 
+            List<TimeSpan> timeMilliseconds = new List<TimeSpan>();
+
             var weAreDone = new CountdownEvent(1);
             {
+                timeMilliseconds.Add(sw.Elapsed);
                 var freePort = NUnitUtils.TcpPortFree();
+                timeMilliseconds.Add(sw.Elapsed);
                 var pubSub = new SubjectNetMQ<int>("tcp://127.0.0.1:" + freePort, loggerDelegate: Console.Write);
-                Thread.Sleep(TimeSpan.FromMilliseconds(500));
+                timeMilliseconds.Add(sw.Elapsed);
                 pubSub.Subscribe(
                     o =>
                     {
@@ -239,9 +243,15 @@ namespace NetMQ.ReactiveExtensions.Tests
                         Console.Write("Pass!");
                         weAreDone.Signal();
                     });
-
-                pubSub.OnNext(42);
+                timeMilliseconds.Add(sw.Elapsed);
                 pubSub.OnCompleted();
+                timeMilliseconds.Add(sw.Elapsed);
+            }
+
+            for (int i = 0; i < timeMilliseconds.Count; i++)
+            {
+                var t = timeMilliseconds[i];
+                Console.WriteLine("- Stage {0}: {1:0,000} milliseconds", i, t.TotalMilliseconds);
             }
 
             if (weAreDone.Wait(GlobalTimeout.Timeout) == false) // Blocks until _countdown.Signal has been called.
