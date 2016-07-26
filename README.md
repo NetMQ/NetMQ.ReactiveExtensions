@@ -87,7 +87,6 @@ subscriber.Subscribe(message =>
 });
 publisher.OnNext(new MyMessage(42, "Bill"); 
 ```
-```
 
 ## NuGet Package
 
