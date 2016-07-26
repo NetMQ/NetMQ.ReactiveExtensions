@@ -39,7 +39,7 @@ var publisher = new PublisherNetMQ<int>("tcp://127.0.0.1:56001");
 var subscriber = new SubscriberNetMQ<int>("tcp://127.0.0.1:56001");
 subscriber.Subscribe(message =>
 {
-	// Receives 42.
+	Console.Write(message); // Prints "42".
 });
 publisher.OnNext(42); // Sends 42.
 ```
@@ -51,14 +51,14 @@ If we want to run in separate applications:
 var subscriber = new SubscriberNetMQ<int>("tcp://127.0.0.1:56001");
 subscriber.Subscribe(message =>
 {
-	// Receives 42.
+	Console.Write(message); // Prints "42".
 });
 
 // Application 2 (subscriber)
 var subscriber = new SubscriberNetMQ<int>("tcp://127.0.0.1:56001");
 subscriber.Subscribe(message =>
 {
-	// Receives 42.
+	Console.Write(message); // Prints "42".
 });
 
 // Application 3 (publisher)
