@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.Threading;
 using NUnit.Framework;
@@ -53,25 +54,44 @@ namespace NetMQ.ReactiveExtensions.Tests
 
             var sw = Stopwatch.StartNew();
 
+            List<TimeSpan> timeMilliseconds = new List<TimeSpan>();
+
             var cd = new CountdownEvent(5);
             {
                 var freePort = NUnitUtils.TcpPortFree();
 
+                timeMilliseconds.Add(sw.Elapsed);
                 var pubSub = new SubjectNetMQ<MyMessageClassType1>("tcp://127.0.0.1:" + freePort,
                     loggerDelegate: Console.Write);
-                pubSub.Subscribe(o =>
-                {
-                    Assert.IsTrue(o.Name == "Bob");
-                    Console.Write("Test: Num={0}, Name={1}\n", o.Num, o.Name);
-                    cd.Signal();
-                },
-                    ex => { Console.WriteLine("Exception! {0}", ex.Message); });
-
+                timeMilliseconds.Add(sw.Elapsed);
+                pubSub.Subscribe(
+                    o =>
+                    {
+                        Assert.IsTrue(o.Name == "Bob");
+                        Console.Write("Test: Num={0}, Name={1}\n", o.Num, o.Name);
+                        cd.Signal();
+                    },
+                    ex =>
+                    {
+                        Console.WriteLine("Exception! {0}", ex.Message);                         
+                    });
+                timeMilliseconds.Add(sw.Elapsed);
                 pubSub.OnNext(new MyMessageClassType1(38, "Bob"));
+                timeMilliseconds.Add(sw.Elapsed);
                 pubSub.OnNext(new MyMessageClassType1(39, "Bob"));
+                timeMilliseconds.Add(sw.Elapsed);
                 pubSub.OnNext(new MyMessageClassType1(40, "Bob"));
+                timeMilliseconds.Add(sw.Elapsed);
                 pubSub.OnNext(new MyMessageClassType1(41, "Bob"));
+                timeMilliseconds.Add(sw.Elapsed);
                 pubSub.OnNext(new MyMessageClassType1(42, "Bob"));
+                timeMilliseconds.Add(sw.Elapsed);
+            }
+
+            for (int i = 0; i < timeMilliseconds.Count; i++)
+            {
+                var t = timeMilliseconds[i];
+                Console.WriteLine("- Stage {0}: {1:0,000} milliseconds", i, t.TotalMilliseconds);
             }
 
             if (cd.Wait(GlobalTimeout.Timeout) == false) // Blocks until _countdown.Signal has been called.
