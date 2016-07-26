@@ -510,7 +510,7 @@ namespace NetMQ.ReactiveExtensions.Tests
                             pub.SendFrame("A\n"); // Ping.
                             {
                                 string topic;
-                                bool pass1 = sub1.TryReceiveFrameString(TimeSpan.FromMilliseconds(100), out topic);
+                                bool pass1 = sub1.TryReceiveFrameString(TimeSpan.FromMilliseconds(250), out topic);
                                 if (pass1)
                                 {
                                     Console.Write(topic);
@@ -523,7 +523,7 @@ namespace NetMQ.ReactiveExtensions.Tests
                             pub.SendFrame("B\n"); // Ping.
                             {
                                 string topic;
-                                bool pass2 = sub2.TryReceiveFrameString(TimeSpan.FromMilliseconds(100), out topic);
+                                bool pass2 = sub2.TryReceiveFrameString(TimeSpan.FromMilliseconds(250), out topic);
                                 if (pass2)
                                 {
                                     Console.Write(topic);
