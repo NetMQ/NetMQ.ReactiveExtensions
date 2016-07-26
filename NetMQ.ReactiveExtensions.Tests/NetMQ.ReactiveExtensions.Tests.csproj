@@ -107,7 +107,11 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="GlobalTimeout.cs" />
+    <Compile Include="NetMQ_ReactiveExtensions_Test_Batch_1.cs" />
+    <Compile Include="NetMQ_ReactiveExtensions_Test_Batch_2.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="TestUtils.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\NetMQ.ReactiveExtensions\NetMQ.ReactiveExtensions.csproj">
@@ -116,7 +120,7 @@
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="SubjectNetMqTests.cs" />
+    <Compile Include="NetMQ_ReactiveExtensions_MessageTypes.cs" />
     <Compile Include="RouterDealerTest2.cs" />
     <Compile Include="RouterDealerTest1.cs" />
     <Compile Include="SerializeAnExceptionTests.cs" />
