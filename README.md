@@ -159,10 +159,10 @@ Within a [process](http://superuser.com/questions/209654/whats-the-difference-be
 
 ```csharp
 var publisher1 = new PublisherNetMQ<MyMessage1>("tcp://127.0.0.1:56001");
-subject1.OnNext(42); // Automatically sets up a transport as a publisher.
+subject1.OnNext(new MyMessage1()); // Automatically sets up a transport as a publisher.
 
 var publisher2 = new PublisherNetMQ<MyMessage2>("tcp://127.0.0.1:56001"); 
-subject2.OnNext(42); // Automatically reuses the shared transport.
+subject2.OnNext(new MyMessage2()); // Automatically reuses the shared transport.
 ```
 
 However, if a [**second process**](http://superuser.com/questions/209654/whats-the-difference-between-an-application-process-and-services) attempts to bind to the publishing endpoint in the [**first process**](http://superuser.com/questions/209654/whats-the-difference-between-an-application-process-and-services), an "in-use" exception will be thrown, e.g.
@@ -170,11 +170,11 @@ However, if a [**second process**](http://superuser.com/questions/209654/whats-t
 ```csharp
 // Application 1
 var publisher1 = new PublisherNetMQ<MyMessage1>("tcp://127.0.0.1:56001");
-subject1.OnNext(42); // Automatically binds as a publisher.
+subject1.OnNext(new MyMessage1()); // Automatically binds as a publisher.
 
 // Application 2 (fails)
 var publisher2 = new PublisherNetMQ<MyMessage2>("tcp://127.0.0.1:56001"); 
-subject1.OnNext(42); // Automatically attempts to bind to the publisher.
+subject1.OnNext(new MyMessage2()); // Automatically attempts to bind to the publisher.
 // throws exception at this point: "Cannot bind to 'tcp://127.0.0.1:56001'.
 ```
 
