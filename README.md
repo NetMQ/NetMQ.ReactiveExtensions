@@ -14,7 +14,7 @@ As a refresher, to use `Subject<T>` in Reactive Extensions (RX):
 var subject = new Subject<int>();
 subject.Subscribe(message =>
 {
-	// Receives 42.
+	Console.Write(message); // Prints "42".
 });
 subject.OnNext(42);
 ```
@@ -25,7 +25,7 @@ The new API starts with a drop-in replacement for `Subject<T>`:
 var subject = new SubjectNetMQ<int>("tcp://127.0.0.1:56001");
 subject.Subscribe(message =>
 {
-	// Receives 42.
+	Console.Write(message); // Prints "42".
 });
 subject.OnNext(42); // Sends 42.
 ```
