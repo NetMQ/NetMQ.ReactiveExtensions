@@ -146,7 +146,7 @@ If we really want good support for many-to-many communication, and we are not to
 
 There are no limitations on the number of subscribers to a single endpoint, e.g. `tcp://127.0.0.1:56001`. However, only one process can publish on an endpoint, e.g. `tcp://127.0.0.1:56001`.
 
-Within a [process](http://superuser.com/questions/209654/whats-the-difference-between-an-application-process-and-services), a single shared transport is used for all publishing, e.g.:
+Within a [process](http://superuser.com/questions/209654/whats-the-difference-between-an-application-process-and-services), a single shared transport is used for all publishing on a single port, e.g.:
 
 ```csharp
 var publisher1 = new PublisherNetMQ<MyMessage1>("tcp://127.0.0.1:56001");
