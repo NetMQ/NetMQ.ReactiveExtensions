@@ -77,6 +77,16 @@ public struct MyMessage
 	[ProtoMember(2)]
 	public string Name { get; set; }
 }
+
+var publisher = new PublisherNetMQ<MyMessage>("tcp://127.0.0.1:56001");
+var subscriber = new SubscriberNetMQ<MyMessage>("tcp://127.0.0.1:56001");
+subscriber.Subscribe(message =>
+{
+	Console.Write(message.Num); // Prints "42".
+	Console.Write(message.Name); // Prints "Bill".
+});
+publisher.OnNext(new MyMessage(42, "Bill"); 
+```
 ```
 
 ## NuGet Package
