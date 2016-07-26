@@ -22,7 +22,9 @@ namespace NetMQ.ReactiveExtensions.Tests
         [Test]
         public void Simplest_Test_Subject()
         {
-            PrintTestName();           
+            PrintTestName();
+
+            Stopwatch sw = new Stopwatch();
 
             CountdownEvent cd = new CountdownEvent(5);
             {
@@ -47,12 +49,16 @@ namespace NetMQ.ReactiveExtensions.Tests
             {
                 Assert.Fail("Timed out, this test should complete in {0} seconds.", Timeout.TotalSeconds);
             }
+
+            PrintElapsedTime(sw.Elapsed);
         }
 
         [Test]
         public void Simplest_Test_Publisher_To_Subscriber()
         {
             PrintTestName();
+
+            Stopwatch sw = new Stopwatch();
 
             CountdownEvent cd = new CountdownEvent(5);
             {
@@ -80,6 +86,7 @@ namespace NetMQ.ReactiveExtensions.Tests
                 Assert.Fail("Timed out, this test should complete in {0} seconds.", Timeout.TotalSeconds);
             }
 
+            PrintElapsedTime(sw.Elapsed);
         }
 
 
@@ -87,6 +94,8 @@ namespace NetMQ.ReactiveExtensions.Tests
         public void Can_Serialize_Using_Protobuf_With_Class()
         {
             PrintTestName();
+
+            Stopwatch sw = new Stopwatch();
 
             CountdownEvent cd = new CountdownEvent(5);
             {
@@ -113,12 +122,16 @@ namespace NetMQ.ReactiveExtensions.Tests
             {
                 Assert.Fail("Timed out, this test should complete in {0} seconds.", Timeout.TotalSeconds);
             }
+
+            PrintElapsedTime(sw.Elapsed);
         }
 
         [Test]
         public void Can_Serialize_Using_Protobuf_With_Struct()
         {
             PrintTestName();
+
+            Stopwatch sw = new Stopwatch();
 
             CountdownEvent cd = new CountdownEvent(5);
             {
@@ -145,12 +158,16 @@ namespace NetMQ.ReactiveExtensions.Tests
             {
                 Assert.Fail("Timed out, this test should complete in {0} seconds.", Timeout.TotalSeconds);
             }
+
+            PrintElapsedTime(sw.Elapsed);
         }
 
         [Test]
         public void Can_Serialize_Class_Name_Longer_Then_Thirty_Two_Characters()
         {
             PrintTestName();
+
+            Stopwatch sw = new Stopwatch();
 
             CountdownEvent cd = new CountdownEvent(5);
             {
@@ -178,6 +195,8 @@ namespace NetMQ.ReactiveExtensions.Tests
             {
                 Assert.Fail("Timed out, this test should complete in {0} seconds.", Timeout.TotalSeconds);
             }
+
+            PrintElapsedTime(sw.Elapsed);
         }
 
 
@@ -185,6 +204,8 @@ namespace NetMQ.ReactiveExtensions.Tests
         public void Initialize_Publisher_Then_Subscriber()
         {
             PrintTestName();
+
+            Stopwatch sw = new Stopwatch();
 
             CountdownEvent cd = new CountdownEvent(5);
             {
@@ -215,12 +236,16 @@ namespace NetMQ.ReactiveExtensions.Tests
             {
                 Assert.Fail("Timed out, this test should complete in {0} seconds.", Timeout.TotalSeconds);
             }
+
+            PrintElapsedTime(sw.Elapsed);
         }
 
         [Test]
         public void Simplest_Fanout_Sub()
         {
             PrintTestName();
+
+            Stopwatch sw = new Stopwatch();
 
             CountdownEvent cd = new CountdownEvent(3);
             {
@@ -252,12 +277,16 @@ namespace NetMQ.ReactiveExtensions.Tests
             {
                 Assert.Fail("Timed out, this test should complete in {0} seconds.", Timeout.TotalSeconds);
             }
+
+            PrintElapsedTime(sw.Elapsed);
         }
 
         [Test]
         public void OnException_Should_Get_Passed_To_Subscribers()
         {
             PrintTestName();
+
+            Stopwatch sw = new Stopwatch();
 
             CountdownEvent weAreDone = new CountdownEvent(1);
             {
@@ -284,12 +313,16 @@ namespace NetMQ.ReactiveExtensions.Tests
             {
                 Assert.Fail("Timed out, this test should complete in {0} seconds.", Timeout.TotalSeconds);
             }
+
+            PrintElapsedTime(sw.Elapsed);
         }
 
         [Test]
         public void OnCompleted_Should_Get_Passed_To_Subscribers()
         {
             PrintTestName();
+
+            Stopwatch sw = new Stopwatch();
 
             CountdownEvent weAreDone = new CountdownEvent(1);
             {
@@ -320,12 +353,15 @@ namespace NetMQ.ReactiveExtensions.Tests
             {
                 Assert.Fail("Timed out, this test should complete in {0} seconds.", Timeout.TotalSeconds);
             }
+
+            PrintElapsedTime(sw.Elapsed);
         }
 
         [Test]
         public static void Disposing_Of_One_Does_Not_Dispose_Of_The_Other()
         {
             PrintTestName();
+            Stopwatch sw = new Stopwatch();
 
             int max = 1000;
             CountdownEvent cd = new CountdownEvent(max);
@@ -348,6 +384,8 @@ namespace NetMQ.ReactiveExtensions.Tests
             {
                 Assert.Fail("Timed out, this test should complete in {0} seconds.", Timeout.TotalSeconds);
             }
+
+            PrintElapsedTime(sw.Elapsed);
         }
 
         [Test]
@@ -357,7 +395,7 @@ namespace NetMQ.ReactiveExtensions.Tests
 
             Stopwatch sw = new Stopwatch();
             {
-                var max = 200*1000;
+                var max = 100*1000;
 
                 CountdownEvent cd = new CountdownEvent(max);
                 var receivedNum = 0;
@@ -392,9 +430,8 @@ namespace NetMQ.ReactiveExtensions.Tests
 
                 sw.Stop();
 
-                Console.Write("\nElapsed time: {0} milliseconds ({1:0,000}/sec)\n", sw.ElapsedMilliseconds,
-                    max/sw.Elapsed.TotalSeconds);
                 // On my machine, achieved >120,000 messages per second.
+                PrintElapsedTime(sw.Elapsed, max);                
             }
         }
 
@@ -441,16 +478,16 @@ namespace NetMQ.ReactiveExtensions.Tests
                 }
 
                 sw.Stop();
-                Console.Write("\nElapsed time: {0} milliseconds ({1:0,000}/sec)\n", sw.ElapsedMilliseconds,
-                    max/sw.Elapsed.TotalSeconds);
                 // On my machine, achieved >120,000 messages per second.
-            }
+                PrintElapsedTime(sw.Elapsed, max);
+            }            
         }
 
         [Test]
         public void PubSub_Should_Not_Crash_If_No_Thread_Sleep()
         {
             PrintTestName();
+            Stopwatch swAll = Stopwatch.StartNew();
 
             using (var pub = new PublisherSocket())
             {
@@ -483,12 +520,14 @@ namespace NetMQ.ReactiveExtensions.Tests
                     Console.WriteLine("Connected in {0} ms.", sw.ElapsedMilliseconds);
                 }
             }
+            PrintElapsedTime(swAll.Elapsed);
         }
 
         [Test]
         public void Test_Two_Subscribers()
         {
             PrintTestName();
+            Stopwatch swAll = Stopwatch.StartNew();            
 
             using (var pub = new PublisherSocket())
             {
@@ -538,12 +577,14 @@ namespace NetMQ.ReactiveExtensions.Tests
                     }
                 }
             }
+            PrintElapsedTime(swAll.Elapsed);
         }
 
         [Test]
         public void If_Message_Not_Serializable_By_Protobuf_Throw_A_Meaningful_Error()
         {
             PrintTestName();
+            Stopwatch sw = Stopwatch.StartNew();
 
             int freePort = TcpPortFree();
             var pubSub = new SubjectNetMQ<MessageNotSerializableByProtobuf>("tcp://127.0.0.1:" + freePort,
@@ -564,12 +605,15 @@ namespace NetMQ.ReactiveExtensions.Tests
             {
                 Assert.Fail();
             }
+
+            PrintElapsedTime(sw.Elapsed);
         }
 
         [Test]
         public void Send_Two_Types_Simultaneously_Over_Same_Transport()
         {
             PrintTestName();
+            Stopwatch sw = Stopwatch.StartNew();
 
             CountdownEvent cd1 = new CountdownEvent(5);
             CountdownEvent cd2 = new CountdownEvent(5);
@@ -624,6 +668,8 @@ namespace NetMQ.ReactiveExtensions.Tests
             {
                 Assert.Fail("Timed out, this test should complete in {0} seconds.", Timeout.TotalSeconds);
             }
+
+            PrintElapsedTime(sw.Elapsed);
         }
 
         #region Message types.
@@ -751,6 +797,17 @@ namespace NetMQ.ReactiveExtensions.Tests
         public static void PrintTestName()
         {
             Console.Write("\n\n*****\nTest: {0}\n*****\n", TestContext.CurrentContext.Test.Name);
+        }
+
+        public static void PrintElapsedTime(TimeSpan sw, int? max = null)
+        {
+
+            Console.Write("\nElapsed time: {0} milliseconds", sw.TotalMilliseconds);
+            if (max != null)
+            {
+                Console.Write(" ({0:0,000}/sec)", (double)max / (double)sw.TotalSeconds);
+            }
+            Console.Write("\n");
         }
     }
 }
