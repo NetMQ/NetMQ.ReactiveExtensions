@@ -7,6 +7,7 @@ using System.Threading;
 using NetMQ.Sockets;
 using NUnit.Framework;
 using ProtoBuf;
+// ReSharper disable InconsistentNaming
 #endregion
 
 // ReSharper disable ConvertClosureToMethodGroup
@@ -16,6 +17,8 @@ namespace NetMQ.ReactiveExtensions.Tests
     [TestFixture]
     public class NetMQ_ReactiveExtensions_Tests
     {
+        public static TimeSpan Timeout = TimeSpan.FromSeconds(30);
+
         [Test]
         public void Simplest_Test_Subject()
         {
@@ -40,9 +43,9 @@ namespace NetMQ.ReactiveExtensions.Tests
                 pubSub.OnNext(42);
             }
 
-            if (cd.Wait(TimeSpan.FromSeconds(10)) == false) // Blocks until _countdown.Signal has been called.
+            if (cd.Wait(Timeout) == false) // Blocks until _countdown.Signal has been called.
             {
-                Assert.Fail("Timed out, this test should complete in 10 seconds.");
+                Assert.Fail("Timed out, this test should complete in {0} seconds.", Timeout.TotalSeconds);
             }
         }
 
@@ -72,9 +75,9 @@ namespace NetMQ.ReactiveExtensions.Tests
                 publisher.OnNext(42);
             }
 
-            if (cd.Wait(TimeSpan.FromSeconds(10)) == false) // Blocks until _countdown.Signal has been called.
+            if (cd.Wait(Timeout) == false) // Blocks until _countdown.Signal has been called.
             {
-                Assert.Fail("Timed out, this test should complete in 10 seconds.");
+                Assert.Fail("Timed out, this test should complete in {0} seconds.", Timeout.TotalSeconds);
             }
 
         }
@@ -106,9 +109,9 @@ namespace NetMQ.ReactiveExtensions.Tests
                 pubSub.OnNext(new MyMessageClassType1(42, "Bob"));
             }
 
-            if (cd.Wait(TimeSpan.FromSeconds(10)) == false) // Blocks until _countdown.Signal has been called.
+            if (cd.Wait(Timeout) == false) // Blocks until _countdown.Signal has been called.
             {
-                Assert.Fail("Timed out, this test should complete in 10 seconds.");
+                Assert.Fail("Timed out, this test should complete in {0} seconds.", Timeout.TotalSeconds);
             }
         }
 
@@ -138,9 +141,9 @@ namespace NetMQ.ReactiveExtensions.Tests
                 pubSub.OnNext(new MyMessageStructType1(42, "Bob"));
             }
 
-            if (cd.Wait(TimeSpan.FromSeconds(10)) == false) // Blocks until _countdown.Signal has been called.
+            if (cd.Wait(Timeout) == false) // Blocks until _countdown.Signal has been called.
             {
-                Assert.Fail("Timed out, this test should complete in 10 seconds.");
+                Assert.Fail("Timed out, this test should complete in {0} seconds.", Timeout.TotalSeconds);
             }
         }
 
@@ -171,9 +174,9 @@ namespace NetMQ.ReactiveExtensions.Tests
                 pubSub.OnNext(new ClassNameIsLongerThenThirtyTwoCharactersForAbsolutelySure(42, "Bob"));
             }
 
-            if (cd.Wait(TimeSpan.FromSeconds(10)) == false) // Blocks until _countdown.Signal has been called.
+            if (cd.Wait(Timeout) == false) // Blocks until _countdown.Signal has been called.
             {
-                Assert.Fail("Timed out, this test should complete in 10 seconds.");
+                Assert.Fail("Timed out, this test should complete in {0} seconds.", Timeout.TotalSeconds);
             }
         }
 
@@ -208,9 +211,9 @@ namespace NetMQ.ReactiveExtensions.Tests
                 pubSub.OnNext(42);
             }
 
-            if (cd.Wait(TimeSpan.FromSeconds(10)) == false) // Blocks until _countdown.Signal has been called.
+            if (cd.Wait(Timeout) == false) // Blocks until _countdown.Signal has been called.
             {
-                Assert.Fail("Timed out, this test should complete in 10 seconds.");
+                Assert.Fail("Timed out, this test should complete in {0} seconds.", Timeout.TotalSeconds);
             }
         }
 
@@ -245,9 +248,9 @@ namespace NetMQ.ReactiveExtensions.Tests
                 pubSub.OnNext(42);
             }
 
-            if (cd.Wait(TimeSpan.FromSeconds(10)) == false) // Blocks until _countdown.Signal has been called.
+            if (cd.Wait(Timeout) == false) // Blocks until _countdown.Signal has been called.
             {
-                Assert.Fail("Timed out, this test should complete in 10 seconds.");
+                Assert.Fail("Timed out, this test should complete in {0} seconds.", Timeout.TotalSeconds);
             }
         }
 
@@ -276,10 +279,10 @@ namespace NetMQ.ReactiveExtensions.Tests
 
                 pubSub.OnError(new Exception("passed"));
             }
-            TimeSpan timeout = TimeSpan.FromSeconds(30);
-            if (weAreDone.Wait(timeout) == false) // Blocks until _countdown.Signal has been called.
+
+            if (weAreDone.Wait(Timeout) == false) // Blocks until _countdown.Signal has been called.
             {
-                Assert.Fail("Timed out, this test should complete in {0} seconds.", timeout.TotalSeconds);
+                Assert.Fail("Timed out, this test should complete in {0} seconds.", Timeout.TotalSeconds);
             }
         }
 
@@ -312,10 +315,10 @@ namespace NetMQ.ReactiveExtensions.Tests
 
                 pubSub.OnCompleted();
             }
-            TimeSpan timeout = TimeSpan.FromSeconds(30);
-            if (weAreDone.Wait(timeout) == false) // Blocks until _countdown.Signal has been called.
+
+            if (weAreDone.Wait(Timeout) == false) // Blocks until _countdown.Signal has been called.
             {
-                Assert.Fail("Timed out, this test should complete in {0} seconds.", timeout.TotalSeconds);
+                Assert.Fail("Timed out, this test should complete in {0} seconds.", Timeout.TotalSeconds);
             }
         }
 
@@ -341,10 +344,9 @@ namespace NetMQ.ReactiveExtensions.Tests
                 }
             }
 
-            TimeSpan timeout = TimeSpan.FromSeconds(30);
-            if (cd.Wait(timeout) == false) // Blocks until _countdown.Signal has been called.
+            if (cd.Wait(Timeout) == false) // Blocks until _countdown.Signal has been called.
             {
-                Assert.Fail("Timed out, this test should complete in {0} seconds.", timeout.TotalSeconds);
+                Assert.Fail("Timed out, this test should complete in {0} seconds.", Timeout.TotalSeconds);
             }
         }
 
@@ -382,11 +384,10 @@ namespace NetMQ.ReactiveExtensions.Tests
                     }
                 }
 
-                TimeSpan timeout = TimeSpan.FromSeconds(30);
-                if (cd.Wait(timeout) == false) // Blocks until _countdown.Signal has been called.
+                if (cd.Wait(Timeout) == false) // Blocks until _countdown.Signal has been called.
                 {
                     Assert.Fail("\nTimed out, this test should complete in {0} seconds. receivedNum={1}",
-                        timeout.TotalSeconds, receivedNum);
+                        Timeout.TotalSeconds, receivedNum);
                 }
 
                 sw.Stop();
@@ -433,10 +434,9 @@ namespace NetMQ.ReactiveExtensions.Tests
                     }
                 }
 
-                TimeSpan timeout = TimeSpan.FromSeconds(30);
-                if (cd.Wait(timeout) == false) // Blocks until _countdown.Signal has been called.
+                if (cd.Wait(Timeout) == false) // Blocks until _countdown.Signal has been called.
                 {
-                    Assert.Fail("\nTimed out, this test should complete in {0} seconds. receivedNum={1}", timeout,
+                    Assert.Fail("\nTimed out, this test should complete in {0} seconds. receivedNum={1}", Timeout.TotalSeconds,
                         receivedNum);
                 }
 
@@ -615,14 +615,14 @@ namespace NetMQ.ReactiveExtensions.Tests
                 pubSub2.OnNext(new MyMessageStructType2(42, "Bob"));
             }
 
-            if (cd1.Wait(TimeSpan.FromSeconds(10)) == false) // Blocks until _countdown.Signal has been called.
+            if (cd1.Wait(Timeout) == false) // Blocks until _countdown.Signal has been called.
             {
-                Assert.Fail("Timed out, this test should complete in 10 seconds.");
+                Assert.Fail("Timed out, this test should complete in {0} seconds.", Timeout.TotalSeconds);
             }
 
-            if (cd2.Wait(TimeSpan.FromSeconds(10)) == false) // Blocks until _countdown.Signal has been called.
+            if (cd2.Wait(Timeout) == false) // Blocks until _countdown.Signal has been called.
             {
-                Assert.Fail("Timed out, this test should complete in 10 seconds.");
+                Assert.Fail("Timed out, this test should complete in {0} seconds.", Timeout.TotalSeconds);
             }
         }
 
