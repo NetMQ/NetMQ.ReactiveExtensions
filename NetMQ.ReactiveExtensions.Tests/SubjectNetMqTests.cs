@@ -268,7 +268,7 @@ namespace NetMQ.ReactiveExtensions.Tests
 
 				pubSub.OnError(new Exception("passed"));
 			}
-			if (weAreDone.Wait(TimeSpan.FromSeconds(10)) == false) // Blocks until _countdown.Signal has been called.
+			if (weAreDone.Wait(TimeSpan.FromSeconds(30)) == false) // Blocks until _countdown.Signal has been called.
 			{
 				Assert.Fail("Timed out, this test should complete in 10 seconds.");
 			}
@@ -301,7 +301,7 @@ namespace NetMQ.ReactiveExtensions.Tests
 
 				pubSub.OnCompleted();
 			}
-			if (weAreDone.Wait(TimeSpan.FromSeconds(15)) == false) // Blocks until _countdown.Signal has been called.
+			if (weAreDone.Wait(TimeSpan.FromSeconds(30)) == false) // Blocks until _countdown.Signal has been called.
 			{
 				Assert.Fail("Timed out, this test should complete in 10 seconds.");
 			}
