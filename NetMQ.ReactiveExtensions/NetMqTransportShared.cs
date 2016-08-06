@@ -86,8 +86,6 @@ namespace NetMQ.ReactiveExtensions
 		{
 			PublisherSocket publisherSocket;
 			{
-				Console.Write("Get new publisher socket.\n");
-
 				_loggerDelegate?.Invoke(string.Format("Publisher socket binding to: {0}\n", addressZeroMq));
 
 				publisherSocket = new PublisherSocket();
