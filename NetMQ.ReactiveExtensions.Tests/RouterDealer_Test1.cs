@@ -111,7 +111,7 @@ namespace NetMQ.ReactiveExtensions.Tests
                             var clientOriginalMessage = clientMessage[2].ConvertToString();
                             var response = string.Format("{0} back from server {1}",
                                 clientOriginalMessage,
-                                DateTime.Now.ToLongTimeString());
+                                DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss"));
                             var messageToClient = new NetMQMessage();
                             messageToClient.Append(clientAddress);
                             messageToClient.AppendEmptyFrame();

@@ -20,7 +20,7 @@ namespace NetMQ.ReactiveExtensions.Tests
             [Test]
             public static void Convert_Exception_To_XML()
             {
-                ApplicationException outerException = new ApplicationException();
+                DivideByZeroException outerException = new DivideByZeroException();
                 ExceptionXElement xmlRaw;
                 {
                     try
@@ -29,7 +29,7 @@ namespace NetMQ.ReactiveExtensions.Tests
                     }
                     catch (Exception ex)
                     {
-                        outerException = new ApplicationException("Outer exception", ex);
+                        outerException = new DivideByZeroException("Outer exception", ex);
                     }
 
                     xmlRaw = new ExceptionXElement(outerException);
