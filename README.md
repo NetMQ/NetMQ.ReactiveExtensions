@@ -4,7 +4,7 @@
 
 Effortlessly send messages anywhere on the network using Reactive Extensions (RX). Uses NetMQ as the transport layer. 
 
-Extremely fast - runs at >120,000 messages per second on localhost.
+Quite fast - runs at >120,000 messages per second on localhost.
 
 ## Sample Code
 
