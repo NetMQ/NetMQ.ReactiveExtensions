@@ -1,4 +1,6 @@
-﻿using System;
+﻿// Behavior changed from 3.4.4.4 -> 4.0.0.0-rc5.
+// In any case, this code is exploratory, as router/dealer is not used in this project.
+/*using System;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
@@ -293,4 +295,4 @@ namespace NetMQ.ReactiveExtensions.Tests
             }
         }
     }
-}
+}*/
