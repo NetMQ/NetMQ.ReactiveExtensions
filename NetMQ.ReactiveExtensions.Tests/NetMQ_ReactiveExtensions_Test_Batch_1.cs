@@ -270,6 +270,7 @@ namespace NetMQ.ReactiveExtensions.Tests
             var sw = Stopwatch.StartNew();
 
             var weAreDone = new CountdownEvent(1);
+            var passed = false;
             {
                 var freePort = NUnitUtils.TcpPortFree();
                 var pubSub = new SubjectNetMQ<int>("tcp://127.0.0.1:" + freePort, loggerDelegate: Console.Write);
@@ -282,7 +283,10 @@ namespace NetMQ.ReactiveExtensions.Tests
                     ex =>
                     {
                         Console.Write("Exception: {0}", ex.Message);
-                        Assert.True(ex.Message.Contains("passed"));
+                        if (ex.Message.Contains("passed") == true)
+                        {
+                            passed = true;
+                        }
                         weAreDone.Signal();
                     },
                     () => { Assert.Fail(); });
@@ -290,9 +294,14 @@ namespace NetMQ.ReactiveExtensions.Tests
                 pubSub.OnError(new Exception("passed"));
             }
 
-            if (weAreDone.Wait(GlobalTimeout.Timeout) == false) // Blocks until _countdown.Signal has been called.
+            if (weAreDone.Wait(GlobalTimeout.Timeout) == false || passed == false) // Blocks until _countdown.Signal has been called.
             {
                 Assert.Fail("Timed out, this test should complete in {0} seconds.", GlobalTimeout.Timeout.TotalSeconds);
+            }
+
+            if (passed == false) // Blocks until _countdown.Signal has been called.
+            {
+                Assert.Fail("Expected exception text did not arrive back.");
             }
 
             NUnitUtils.PrintElapsedTime(sw.Elapsed);

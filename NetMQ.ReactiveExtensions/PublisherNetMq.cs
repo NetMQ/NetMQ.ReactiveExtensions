@@ -154,32 +154,28 @@ namespace NetMQ.ReactiveExtensions
 		{
 			InitializePublisherOnFirstUse(this.AddressZeroMq);
 
-			var exceptionWrapper = new SerializableException(exception);
-			byte[] serializedException = exceptionWrapper.SerializeException();
-			string exceptionAsString = exception.ToString();
+            string exceptionAsXml = new ExceptionXElement(exception).ToString();
+            _publisherSocket.SendMoreFrame(SubscriberFilterName)
+                    .SendMoreFrame("E") // "N", "E" or "C" for "OnNext", "OnError" or "OnCompleted".
+                    .SendMoreFrame(exceptionAsXml) // Human readable exception. Added for 100% cross-platform debugging, so we can read
+                                                   // the error on the wire. Visual Studio has a nice viewer for XML in any variable during
+                                                   // debugging.
+                    .SendFrame(new byte[0]);   // Future expansion for machine readable exception.
 
-			_publisherSocket.SendMoreFrame(SubscriberFilterName)
-					.SendMoreFrame("E") // "N", "E" or "C" for "OnNext", "OnError" or "OnCompleted".
-					.SendMoreFrame(exceptionAsString.SerializeProtoBuf()) // Human readable exception. Added for 100%
-																		  // cross-platform debugging, so we can read
-																		  // the error on the wire.
-					.SendFrame(serializedException); // Machine readable exception. So we can pass the full exception to
-													 // the .NET client.
+            // Comment in the remaining code for the standard pub/sub pattern.
 
-			// Comment in the remaining code for the standard pub/sub pattern.
+            //if (this.HasObservers == false)
+            //{
+            //throw new QxNoSubscribers("Error E28244. As there are no subscribers to this publisher, this published exception will be lost.");
+            //}
 
-			//if (this.HasObservers == false)
-			//{
-			//throw new QxNoSubscribers("Error E28244. As there are no subscribers to this publisher, this published exception will be lost.");
-			//}
+            //lock (_subscribersLock)
+            //{
+            //this._subscribers.ForEach(msg => msg.OnError(exception));
+            //}
+        }
 
-			//lock (_subscribersLock)
-			//{
-			//this._subscribers.ForEach(msg => msg.OnError(exception));
-			//}
-		}
-
-		public void OnCompleted()
+        public void OnCompleted()
 		{
 			InitializePublisherOnFirstUse(this.AddressZeroMq);
 

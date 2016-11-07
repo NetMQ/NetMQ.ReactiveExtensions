@@ -1,5 +1,6 @@
 ﻿using System.Diagnostics;
 using NUnit.Framework;
+// ReSharper disable InconsistentNaming
 
 namespace NetMQ.ReactiveExtensions.Tests
 {

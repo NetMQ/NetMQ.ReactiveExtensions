@@ -4,12 +4,13 @@ using System.Threading;
 using System.Threading.Tasks;
 using NetMQ.Sockets;
 using NUnit.Framework;
+// ReSharper disable InconsistentNaming
 
 namespace NetMQ.ReactiveExtensions.Tests
 {
     [Ignore]
     [TestFixture]
-    public class RouterDealerTest2
+    public class RouterDealer_Test2
     {
         private void PrintFrames(string operationType, NetMQMessage message)
         {
