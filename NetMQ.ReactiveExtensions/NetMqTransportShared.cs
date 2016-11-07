@@ -135,7 +135,7 @@ namespace NetMQ.ReactiveExtensions
             // locally, but occasionally fails on the AppVeyor build server. 650 milliseconds is optimal.
             using (EventWaitHandle wait = new ManualResetEvent(false))
             {
-                // Cannot use Thread.Sleep() here, as this is incompatible with .NET Core, Windows 8.0, 8.1, and 10.
+                // Cannot use Thread.Sleep() here, as this is incompatible with .NET Core 1.0, Windows 8.0, 8.1, and 10.
                 wait.WaitOne(TimeSpan.FromMilliseconds(650));
             }
 
