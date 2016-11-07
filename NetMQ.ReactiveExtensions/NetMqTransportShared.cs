@@ -133,8 +133,13 @@ namespace NetMQ.ReactiveExtensions
 
             // Otherwise, the first item we publish may get missed by the subscriber. 500 milliseconds consistently works 
             // locally, but occasionally fails on the AppVeyor build server. 650 milliseconds is optimal.
-            Thread.Sleep(650); 
-			return publisherSocket;
+            using (EventWaitHandle wait = new ManualResetEvent(false))
+            {
+                // Cannot use Thread.Sleep() here, as this is incompatible with .NET Core, Windows 8.0, 8.1, and 10.
+                wait.WaitOne(TimeSpan.FromMilliseconds(650));
+            }
+
+            return publisherSocket;
 		}
 
 		private void Publisher_Event_Listening(object sender, NetMQMonitorSocketEventArgs e)
