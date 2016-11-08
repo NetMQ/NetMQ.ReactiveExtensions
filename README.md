@@ -103,10 +103,13 @@ To check out the demos, see:
 - Subscriber: Project `NetMQ.ReactiveExtensions.SampleSubscriber`
 - Sample unit tests: Project `NetMQ.ReactiveExtensions.Tests`
 
+## Performance
+
+- Runs at >120,000 messages per second on localhost.
+
 ## Notes - General
 
 - Compatible with all existing RX code. Can use `.Where()`, `.Select()`, `.Buffer()`, `.Throttle()`, etc.
-- Runs at >120,000 messages per second on localhost.
 - Supports `.OnNext()`, `.OnException()`, and `.OnCompleted()`.
 - Properly passes exceptions across the wire.
 - Supported by a full suite of unit tests.
