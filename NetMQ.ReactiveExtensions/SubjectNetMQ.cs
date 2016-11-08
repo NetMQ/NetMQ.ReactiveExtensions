@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics;
-using System.Reactive;
 using System.Threading;
 using NetMQ.Monitoring;
 using NetMQ.Sockets;
