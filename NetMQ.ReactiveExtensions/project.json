@@ -1,0 +1,18 @@
+{
+  "version": "1.0.0-*",
+  "dependencies": {
+    "Microsoft.NETCore.App": {
+      "type": "platform",
+      "version": "1.0.1"
+    },
+    "NetMQ": "4.0.0-rc5",
+    "protobuf-net": "2.1.0",
+    "System.Reactive.Core": "3.1.0"
+  },
+
+  "frameworks": {
+    "netcoreapp1.6": {
+      "imports": "dnxcore50"
+    }
+  }
+}
