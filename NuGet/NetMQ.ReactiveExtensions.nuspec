@@ -18,11 +18,11 @@
     <tags>Reactive Extensions RX .NET C# ZeroMQ 0MQ CLRZMQ NetMQ Messaging ZMQ transport distributed</tags>
     <dependencies>
       <dependency id="AsyncIO" version="0.1.26.0"/>
-      <dependency id="Microsoft.NETCore.Platforms" version="1.0.1"/>
+      <!--<dependency id="Microsoft.NETCore.Platforms" version="1.0.1"/>-->
       <dependency id="NetMQ" version="4.0.0-rc5"/>
-      <dependency id="NETStandard.Library" version="1.6.0"/>
+      <!--<dependency id="NETStandard.Library" version="1.6.0"/>-->
       <dependency id="protobuf-net" version="2.1.0"/>
-      <dependency id="System.Collections" version="4.0.11"/>
+      <!--<dependency id="System.Collections" version="4.0.11"/>
       <dependency id="System.Collections.Concurrent" version="4.0.12"/>
       <dependency id="System.ComponentModel" version="4.0.1"/>
       <dependency id="System.Diagnostics.Contracts" version="4.0.1"/>
@@ -55,11 +55,15 @@
       <dependency id="System.Threading" version="4.0.11"/>
       <dependency id="System.Threading.Tasks" version="4.0.11"/>
       <dependency id="System.Xml.ReaderWriter" version="4.0.11"/>
-      <dependency id="System.Xml.XDocument" version="4.0.11"/>
+      <dependency id="System.Xml.XDocument" version="4.0.11"/>-->
     </dependencies>
   </metadata>
   <files>
-    <file src="bin\Release\NetMQ.ReactiveExtensions.dll" target="lib\netstandard"/>
-    <file src="bin\Release\NetMQ.ReactiveExtensions.XML" target="lib\netstandard"/>
+    <file src="..\NetMQ.ReactiveExtensions\bin\Release\net45\NetMQ.ReactiveExtensions.dll" target="lib\net45"/>
+    <file src="..\NetMQ.ReactiveExtensions\bin\Release\net45\NetMQ.ReactiveExtensions.pdb" target="lib\net45"/>
+    <file src="..\NetMQ.ReactiveExtensions\bin\Release\netcoreapp1.0\NetMQ.ReactiveExtensions.dll" target="lib\netcoreapp1.0"/>
+    <file src="..\NetMQ.ReactiveExtensions\bin\Release\netcoreapp1.0\NetMQ.ReactiveExtensions.pdb" target="lib\netcoreapp1.0"/>
+    <file src="..\NetMQ.ReactiveExtensions\bin\Release\netstandard1.6\NetMQ.ReactiveExtensions.dll" target="lib\netstandard1.6"/>
+    <file src="..\NetMQ.ReactiveExtensions\bin\Release\netstandard1.6\NetMQ.ReactiveExtensions.pdb" target="lib\netstandard1.6"/>
   </files>
 </package>
