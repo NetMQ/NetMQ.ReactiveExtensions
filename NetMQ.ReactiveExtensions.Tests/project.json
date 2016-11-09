@@ -1,0 +1,14 @@
+﻿{
+  "version": "1.0.0-*",
+
+  "dependencies": {
+    "NetMQ.ReactiveExtensions": "1.0.0-*",
+    "NUnit": "3.5.0"
+  },
+
+  "frameworks": {
+    "netcoreapp1.6": {
+      "imports": "dnxcore50"
+    }
+  }
+}

@@ -1,0 +1,65 @@
+<?xml version="1.0"?>
+<package xmlns="http://schemas.microsoft.com/packaging/2011/10/nuspec.xsd">
+  <metadata>
+    <id>NetMQ.ReactiveExtensions</id>
+    <version>$version$</version>
+    <title>NetMQ Reactive Extensions</title>
+    <authors>NetMQ</authors>
+    <owners>NetMQ</owners>
+    <licenseUrl>https://github.com/NetMQ/NetMQ.ReactiveExtensions/blob/master/LICENSE</licenseUrl>
+    <projectUrl>https://github.com/NetMQ/NetMQ.ReactiveExtensions</projectUrl>
+    <iconUrl>https://raw.githubusercontent.com/NetMQ/NetMQ.ReactiveExtensions/img/NetMQ.ico</iconUrl>
+    <requireLicenseAcceptance>false</requireLicenseAcceptance>
+    <description>Reactive Extensions (RX) with NetMQ as the transport layer. Send messages anywhere on the network!</description>
+    <releaseNotes>
+      Second stable release. Feedback welcome.
+    </releaseNotes>
+    <copyright>Copyright 2016</copyright>
+    <tags>Reactive Extensions RX .NET C# ZeroMQ 0MQ CLRZMQ NetMQ Messaging ZMQ transport distributed</tags>
+    <dependencies>
+      <dependency id="AsyncIO" version="0.1.26.0"/>
+      <dependency id="Microsoft.NETCore.Platforms" version="1.0.1"/>
+      <dependency id="NetMQ" version="4.0.0-rc5"/>
+      <dependency id="NETStandard.Library" version="1.6.0"/>
+      <dependency id="protobuf-net" version="2.1.0"/>
+      <dependency id="System.Collections" version="4.0.11"/>
+      <dependency id="System.Collections.Concurrent" version="4.0.12"/>
+      <dependency id="System.ComponentModel" version="4.0.1"/>
+      <dependency id="System.Diagnostics.Contracts" version="4.0.1"/>
+      <dependency id="System.Diagnostics.Debug" version="4.0.11"/>
+      <dependency id="System.Diagnostics.Tools" version="4.0.1"/>
+      <dependency id="System.Diagnostics.Tracing" version="4.1.0"/>
+      <dependency id="System.Dynamic.Runtime" version="4.0.11"/>
+      <dependency id="System.Globalization" version="4.0.11"/>
+      <dependency id="System.IO" version="4.1.0"/>
+      <dependency id="System.IO.Compression" version="4.1.0"/>
+      <dependency id="System.Linq" version="4.1.0"/>
+      <dependency id="System.Linq.Expressions" version="4.1.0"/>
+      <dependency id="System.Net.Http" version="4.1.0"/>
+      <dependency id="System.Net.Primitives" version="4.0.11"/>
+      <dependency id="System.ObjectModel" version="4.0.12"/>
+      <dependency id="System.Reactive.Core" version="3.1.0"/>
+      <dependency id="System.Reactive.Interfaces" version="3.1.0"/>
+      <dependency id="System.Reflection" version="4.1.0"/>
+      <dependency id="System.Reflection.Extensions" version="4.0.1"/>
+      <dependency id="System.Reflection.Primitives" version="4.0.1"/>
+      <dependency id="System.Resources.ResourceManager" version="4.0.1"/>
+      <dependency id="System.Runtime" version="4.1.0"/>
+      <dependency id="System.Runtime.Extensions" version="4.1.0"/>
+      <dependency id="System.Runtime.InteropServices" version="4.1.0"/>
+      <dependency id="System.Runtime.InteropServices.RuntimeInformation" version="4.0.0"/>
+      <dependency id="System.Runtime.Numerics" version="4.0.1"/>
+      <dependency id="System.Text.Encoding" version="4.0.11"/>
+      <dependency id="System.Text.Encoding.Extensions" version="4.0.11"/>
+      <dependency id="System.Text.RegularExpressions" version="4.1.0"/>
+      <dependency id="System.Threading" version="4.0.11"/>
+      <dependency id="System.Threading.Tasks" version="4.0.11"/>
+      <dependency id="System.Xml.ReaderWriter" version="4.0.11"/>
+      <dependency id="System.Xml.XDocument" version="4.0.11"/>
+    </dependencies>
+  </metadata>
+  <files>
+    <file src="bin\Release\NetMQ.ReactiveExtensions.dll" target="lib\netstandard"/>
+    <file src="bin\Release\NetMQ.ReactiveExtensions.XML" target="lib\netstandard"/>
+  </files>
+</package>
