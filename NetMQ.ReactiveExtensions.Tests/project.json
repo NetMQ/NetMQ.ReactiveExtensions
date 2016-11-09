@@ -1,13 +1,19 @@
 ﻿{
   "version": "1.0.0-*",
-
   "dependencies": {
-    "NetMQ.ReactiveExtensions": "1.0.0-*",
-    "NUnit": "3.5.0"
+    "Microsoft.NETCore.App": {
+      "type": "platform",
+      "version": "1.0.1"
+    },
+    "NUnit": "3.5.0",
+    "dotnet-test-nunit": "3.4.0-beta-3",
+    "NetMQ.ReactiveExtensions": "1.0.0-*"
   },
 
+  "testRunner": "nunit",
+
   "frameworks": {
-    "netcoreapp1.6": {
+    "netcoreapp1.0": {
       "imports": "dnxcore50"
     }
   }

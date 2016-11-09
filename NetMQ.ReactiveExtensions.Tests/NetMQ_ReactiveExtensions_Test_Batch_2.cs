@@ -3,6 +3,7 @@ using System.Diagnostics;
 using System.Threading;
 using NetMQ.Sockets;
 using NUnit.Framework;
+// ReSharper disable InconsistentNaming
 
 namespace NetMQ.ReactiveExtensions.Tests
 {
