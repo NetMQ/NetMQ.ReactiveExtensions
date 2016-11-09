@@ -1,12 +1,6 @@
 ﻿{
   "version": "1.0.0-*",
   "dependencies": {
-    "Microsoft.NETCore.App": {
-      "type": "platform",
-      "version": "1.0.1"
-    },
-    "NUnit": "3.5.0",
-    "dotnet-test-nunit": "3.4.0-beta-3",
     "NetMQ.ReactiveExtensions": "1.0.0-*"
   },
 
@@ -14,7 +8,21 @@
 
   "frameworks": {
     "netcoreapp1.0": {
+      "dependencies": {
+        "Microsoft.NETCore.App": {
+          "type": "platform",
+          "version": "1.0.1"
+        },
+        "NUnit": "3.5.0",
+        "dotnet-test-nunit": "3.4.0-beta-3"
+      },
       "imports": "dnxcore50"
+    },
+    "net45": {
+      "dependencies": {
+        "NUnit": "2.6.4",
+        "System.Xml.Linq": "*"
+      }
     }
   }
 }
