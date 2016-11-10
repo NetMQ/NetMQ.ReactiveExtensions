@@ -1,11 +1,8 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using System.Threading;
 using ProtoBuf;
 
-namespace NetMQ.ReactiveExtensions.SampleClient
+namespace NetMQ.ReactiveExtensions.SampleSubscriber
 {
 	class Program
 	{
@@ -31,6 +28,8 @@ namespace NetMQ.ReactiveExtensions.SampleClient
 			Console.ReadKey();
 		}
 	}
+
+
 
 	[ProtoContract]
 	public class MyMessage

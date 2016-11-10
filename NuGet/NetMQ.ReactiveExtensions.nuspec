@@ -12,20 +12,21 @@
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
     <description>Reactive Extensions (RX) with NetMQ as the transport layer. Send messages anywhere on the network!</description>
     <releaseNotes>
-      Second stable release. Feedback welcome.
+      Now compatible with .NET Core 1.0. Feedback welcome!
     </releaseNotes>
     <copyright>Copyright 2016</copyright>
     <tags>Reactive Extensions RX .NET C# ZeroMQ 0MQ CLRZMQ NetMQ Messaging ZMQ transport distributed</tags>
     <dependencies>
       <dependency id="AsyncIO" version="0.1.26.0"/>
-		  <dependency id="NetMQ" version="3.3.3.4" />
-		  <dependency id="protobuf-net" version="2.1.0" />
-		  <dependency id="Rx-Core" version="2.2.5" />
-		  <dependency id="Rx-Interfaces" version="2.2.5" />
+      <dependency id="NetMQ" version="4.0.0-rc5"/>
+      <dependency id="protobuf-net" version="2.1.0"/>
+    	<dependency id="System.Reactive" version="3.1.0"/>
     </dependencies>
   </metadata>
   <files>
-    <file src="bin\Release\NetMQ.ReactiveExtensions.dll" target="lib\net40\" />
-    <file src="bin\Release\NetMQ.ReactiveExtensions.XML" target="lib\net40\" />
+    <file src="..\NetMQ.ReactiveExtensions\bin\Release\net45\NetMQ.ReactiveExtensions.dll" target="lib\net45"/>
+    <file src="..\NetMQ.ReactiveExtensions\bin\Release\net45\NetMQ.ReactiveExtensions.xml" target="lib\net45"/>
+    <file src="..\NetMQ.ReactiveExtensions\bin\Release\netstandard1.6\NetMQ.ReactiveExtensions.dll" target="lib\netstandard1.6"/>
+    <file src="..\NetMQ.ReactiveExtensions\bin\Release\netstandard1.6\NetMQ.ReactiveExtensions.xml" target="lib\netstandard1.6"/>
   </files>
 </package>
