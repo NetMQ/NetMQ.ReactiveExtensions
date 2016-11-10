@@ -96,7 +96,7 @@ publisher.OnNext(new MyMessage(42, "Bill");
 
 See [NetMQ.ReactiveExtensions](https://www.nuget.org/packages/NetMQ.ReactiveExtensions/).
 
-The NuGet package 0.9.4-rc7 and up is compatible with .NET Core 1.0.1, .NET 4.5, and .NET Standard 1.6. If you want to build it for other platforms, please let me know.
+The NuGet package 0.9.4-rc7 is now compatible with .NET Core 1.0.1, .NET 4.5, and .NET Standard 1.6. If you want to build it for other platforms, please let me know.
 
 ## Demos
 
