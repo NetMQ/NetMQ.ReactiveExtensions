@@ -5,27 +5,16 @@
     "protobuf-net": "2.1.0",
     "System.Reactive.Core": "3.1.0"
   },
-
   "frameworks": {
-    "netcoreapp1.0": {
-      "dependencies": {
-        "Microsoft.NETCore.App": {
-          "type": "platform",
-          "version": "1.0.1"
-        }
-      },
-      "imports": "dnxcore50"
-    },
-    "netstandard1.6": {
-      "dependencies": {
-        "NETStandard.Library": "1.6.0"
-      }
-    },
+    "netstandard1.6": {},
     "net45": {
       "dependencies": {
-        "System.Xml.Linq" : "*" 
+        "System.Xml.Linq": "*"
       }
     }
+  },
+  "buildOptions": {
+    "xmlDoc": true
   }
 }
 

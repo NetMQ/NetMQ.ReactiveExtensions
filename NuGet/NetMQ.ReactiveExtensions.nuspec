@@ -25,10 +25,8 @@
   </metadata>
   <files>
     <file src="..\NetMQ.ReactiveExtensions\bin\Release\net45\NetMQ.ReactiveExtensions.dll" target="lib\net45"/>
-    <file src="..\NetMQ.ReactiveExtensions\bin\Release\net45\NetMQ.ReactiveExtensions.pdb" target="lib\net45"/>
-    <file src="..\NetMQ.ReactiveExtensions\bin\Release\netcoreapp1.0\NetMQ.ReactiveExtensions.dll" target="lib\netcoreapp1.0"/>
-    <file src="..\NetMQ.ReactiveExtensions\bin\Release\netcoreapp1.0\NetMQ.ReactiveExtensions.pdb" target="lib\netcoreapp1.0"/>
+    <file src="..\NetMQ.ReactiveExtensions\bin\Release\net45\NetMQ.ReactiveExtensions.xml" target="lib\net45"/>
     <file src="..\NetMQ.ReactiveExtensions\bin\Release\netstandard1.6\NetMQ.ReactiveExtensions.dll" target="lib\netstandard1.6"/>
-    <file src="..\NetMQ.ReactiveExtensions\bin\Release\netstandard1.6\NetMQ.ReactiveExtensions.pdb" target="lib\netstandard1.6"/>
+    <file src="..\NetMQ.ReactiveExtensions\bin\Release\netstandard1.6\NetMQ.ReactiveExtensions.xml" target="lib\netstandard1.6"/>
   </files>
 </package>
