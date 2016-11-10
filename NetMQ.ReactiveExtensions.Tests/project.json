@@ -17,11 +17,6 @@
         "dotnet-test-nunit": "3.4.0-beta-3"
       },
       "imports": "dnxcore50"
-    },
-    "net45": {
-      "dependencies": {
-        "NUnit": "2.6.4"
-      }
     }
   }
 }
