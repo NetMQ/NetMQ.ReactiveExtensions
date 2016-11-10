@@ -12,7 +12,7 @@ The API is a drop-in replacement for `Subject<T>` from Reactive Extensions (RX).
 
 As a refresher, to use `Subject<T>` in Reactive Extensions (RX):
 
-```csharp
+```csharp 
 var subject = new Subject<int>();
 subject.Subscribe(message =>
 {
