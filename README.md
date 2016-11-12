@@ -116,14 +116,18 @@ As of v0.9.4-rc7, this package is compatible with:
 - .NET Core 1.0.1 and up
 - .NET Standard 1.6 and up
 
-## Notes - General
+## 100% compatible with Reactive Extensions (RX) 
 
-- Compatible with all existing RX code. Can use `.Where()`, `.Select()`, `.Buffer()`, `.Throttle()`, etc.
+- Compatible with all existing Reactive Extensions code, as it implements IObservable<T> and IObserver<T> from Microsoft.
+- Can use `.Where()`, `.Select()`, `.Buffer()`, `.Throttle()`, etc.
 - Supports `.OnNext()`, `.OnException()`, and `.OnCompleted()`.
 - Properly passes exceptions across the wire.
+
+## Unit tests
+
 - Supported by a full suite of unit tests.
 
-## Notes - Projects like this one that do messaging
+## Projects like this one that do messaging
 
 - See [Obvs](https://github.com/inter8ection/Obvs), an fantastic RX wrapper which supports many transport layers including NetMQ, RabbitMQ and Azure, and many serialization methods including ProtoBuf and MsgPack.
 - See [Obvs.NetMQ](https://github.com/inter8ection/Obvs.Netmq), the RX wrapper with NetMQ as the transport layer. 
