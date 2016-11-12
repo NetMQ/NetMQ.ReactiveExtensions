@@ -123,11 +123,12 @@ As of v0.9.4-rc7, this package is compatible with:
 - Properly passes exceptions across the wire.
 - Supported by a full suite of unit tests.
 
-## Notes - Projects like this one
+## Notes - Projects like this one that do messaging
 
 - See [Obvs](https://github.com/inter8ection/Obvs), an fantastic RX wrapper which supports many transport layers including NetMQ, RabbitMQ and Azure, and many serialization methods including ProtoBuf and MsgPack.
 - See [Obvs.NetMQ](https://github.com/inter8ection/Obvs.Netmq), the RX wrapper with NetMQ as the transport layer. 
 - Search for [all packages on NuGet that depend on RX](http://nugetmusthaves.com/Dependencies/Rx-Linq), and pick out the ones that are related to message buses.
+- Check out Kafka. It provides many-to-many messaging, with persistance, and multi-node redundancy. And its blindingly fast.
 
 ## Wiki
 
