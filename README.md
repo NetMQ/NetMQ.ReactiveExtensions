@@ -107,6 +107,7 @@ As it supports .NET Standard 1.6 (which is a subset of .NET Core 1.1), this libr
 - Linux
 - Mac
 
+Compiling from source:
 - Install [Visual Studio 2015 Update 3](https://www.visualstudio.com/en-us/news/releasenotes/vs2015-update3-vs).
 - Install "[.NET Core 1.1 SDK - Installer](https://www.microsoft.com/net/download/core)" from https://www.microsoft.com/net/download/core. Unless this is installed, there may be compile errors.
 - If the project does not compile on your machine, raise an issue here on GitHub.
