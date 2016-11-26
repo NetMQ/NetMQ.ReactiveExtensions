@@ -110,6 +110,8 @@ As this library supports .NET Standard 1.6 (which is a subset of .NET Core 1.1),
 - Linux
 - Mac
 
+This library is tested on Window and Linux. If it passes it's unit tests on any given platform, then it should perform nicely on different architectures such as Mac.
+
 ## Compiling from source
 
 - Install [Visual Studio 2015 Update 3](https://www.visualstudio.com/en-us/news/releasenotes/vs2015-update3-vs).
