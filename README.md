@@ -98,16 +98,20 @@ See [NetMQ.ReactiveExtensions](https://www.nuget.org/packages/NetMQ.ReactiveExte
 
 The NuGet package 0.9.4-rc7 is now compatible with .NET Core 1.0.1, .NET 4.5, and .NET Standard 1.6. If you want to build it for other platforms, please let me know.
 
-## Compiling from source
+## .NET Core 1.1 Ready
 
-This project compiles for both .NET 4.5 and [.NET Core 1.1](https://www.microsoft.com/net/download/core).
+As of v0.9.4-rc7, this package is compatible with:
+- .NET 4.5 and up
+- [.NET Core 1.1](https://www.microsoft.com/net/download/core)
+- .NET Standard 1.6 and up
 
-As it supports .NET Standard 1.6 (which is a subset of .NET Core 1.1), this library should be compatible with:
+As this library supports .NET Standard 1.6 (which is a subset of .NET Core 1.1), this library should be compatible with:
 - Windows
 - Linux
 - Mac
 
-Compiling from source:
+## Compiling from source
+
 - Install [Visual Studio 2015 Update 3](https://www.visualstudio.com/en-us/news/releasenotes/vs2015-update3-vs).
 - Install "[.NET Core 1.1 SDK - Installer](https://www.microsoft.com/net/download/core)" from https://www.microsoft.com/net/download/core. Unless this is installed, there may be compile errors.
 - If the project does not compile on your machine, raise an issue here on GitHub.
@@ -122,13 +126,6 @@ To check out the demos, see:
 ## Performance
 
 - Runs at >120,000 messages per second on localhost.
-
-## .NET Core 1.0 Ready
-
-As of v0.9.4-rc7, this package is compatible with:
-- .NET 4.5 and up
-- .NET Core 1.0.1 and up
-- .NET Standard 1.6 and up
 
 ## 100% compatible with Reactive Extensions (RX) 
 
