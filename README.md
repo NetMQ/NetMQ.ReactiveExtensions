@@ -115,8 +115,12 @@ This library is tested on Window and Linux. If it passes it's unit tests on any 
 ## Compiling from source
 
 - Install [Visual Studio 2015 Update 3](https://www.visualstudio.com/en-us/news/releasenotes/vs2015-update3-vs).
-- Install "[.NET Core 1.1 SDK - Installer](https://www.microsoft.com/net/download/core)" from https://www.microsoft.com/net/download/core. If  this is not installed, or .NET Core 1.0.1 is installed, there may be compile errors.
+- Install "[.NET Core 1.1 SDK - Installer](https://www.microsoft.com/net/download/core)" from https://www.microsoft.com/net/download/core.
+- It may not compile until a manual "[nuget restore](https://docs.nuget.org/ndocs/consume-packages/package-restore)" is performed for each project (this also rebuilds the `project.lock.json` file). You can either do this from the command line, or by right clicking on  the solution and choosing `Restore NuGet packages`.
+
 - If the project does not compile on your machine, raise an issue here on GitHub.
+
+NOTE: Not compatible with .NET Core 1.0 or .NET Core 1.0.1. Must install .NET Core 1.1 and above to avoid potential compile errors.
 
 ## Demos
 
