@@ -14,6 +14,14 @@
       "dependencies": {
         "System.Xml.Linq": "3.5.*"
       }
+    },
+    "net46": {
+      "dependencies": {
+        
+      },
+      "frameworkAssemblies": {
+        "System.Xml.Linq": "4.0.*"
+      }
     }
   },
   "buildOptions": {
