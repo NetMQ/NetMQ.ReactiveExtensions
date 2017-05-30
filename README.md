@@ -4,7 +4,7 @@
 
 Effortlessly send messages anywhere on the network using Reactive Extensions (RX). Uses NetMQ as the transport layer. 
 
-Fast! Runs at >120,000 messages per second on localhost.
+Fast! Runs at >120,000 messages per second on localhost (by comparison, Tibco runs at 100,000 on the same machine).
 
 ## Sample Code
 
