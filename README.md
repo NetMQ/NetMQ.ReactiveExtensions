@@ -16,8 +16,8 @@ As a refresher, to use `Subject<T>` in Reactive Extensions (RX):
 var subject = new Subject<int>();
 subject.Subscribe(message =>
 {
-        // If we get an error "Cannot convert lambda ... not a delegate type", install Reactive Extensions from NuGet.
-	Console.Write(message); // Prints "42".
+  // If we get an error "Cannot convert lambda ... not a delegate type", install Reactive Extensions from NuGet.
+  Console.Write(message); // Prints "42".
 });
 subject.OnNext(42);
 ```
