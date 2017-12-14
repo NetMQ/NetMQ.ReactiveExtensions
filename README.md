@@ -51,42 +51,43 @@ If we want to run in separate applications:
 
 ```csharp
 // Application 1 (subscriber)
-var subscriber = new SubscriberNetMQ<int>("tcp://127.0.0.1:56001");
-subscriber.Subscribe(message =>
+var subscriber1 = new SubscriberNetMq<int>("tcp://127.0.0.1:56001");
+subscriber1.Subscribe(message =>
 {
-	Console.Write(message); // Prints "42".
+    Console.Write(message); // Prints "42".
 });
 
 // Application 2 (subscriber)
-var subscriber = new SubscriberNetMQ<int>("tcp://127.0.0.1:56001");
-subscriber.Subscribe(message =>
+var subscriber2 = new SubscriberNetMq<int>("tcp://127.0.0.1:56001");
+subscriber2.Subscribe(message =>
 {
-	Console.Write(message); // Prints "42".
+    Console.Write(message); // Prints "42".
 });
 
 // Application 3 (publisher)
-var publisher = new PublisherNetMQ<int>("tcp://127.0.0.1:56001");
+var publisher = new PublisherNetMq<int>("tcp://127.0.0.1:56001");
 publisher.OnNext(42); // Sends 42.
 ```
 
 Currently, serialization is performed using [ProtoBuf](https://github.com/mgravell/protobuf-net "ProtoBuf"). It will handle simple types such as `int` without annotation, but if we want to send more complex classes, we have to annotate like this:
 
 ```csharp
+// For Protobuf support, include NuGet package protobuf-net from Marc Gravell.
 [ProtoContract]
 public struct MyMessage
 {
-	[ProtoMember(1)]
-	public int Num { get; set; }
-	[ProtoMember(2)]
-	public string Name { get; set; }
+    [ProtoMember(1)]
+    public int Num { get; set; }
+    [ProtoMember(2)]
+    public string Name { get; set; }
 }
 
-var publisher = new PublisherNetMQ<MyMessage>("tcp://127.0.0.1:56001");
-var subscriber = new SubscriberNetMQ<MyMessage>("tcp://127.0.0.1:56001");
+var publisher = new PublisherNetMq<MyMessage>("tcp://127.0.0.1:56001");
+var subscriber = new SubscriberNetMq<MyMessage>("tcp://127.0.0.1:56001");
 subscriber.Subscribe(message =>
 {
-	Console.Write(message.Num); // Prints "42".
-	Console.Write(message.Name); // Prints "Bill".
+    Console.Write(message.Num); // Prints "42".
+    Console.Write(message.Name); // Prints "Bill".
 });
 publisher.OnNext(new MyMessage(42, "Bill"); 
 ```
