@@ -16,6 +16,7 @@ As a refresher, to use `Subject<T>` in Reactive Extensions (RX):
 var subject = new Subject<int>();
 subject.Subscribe(message =>
 {
+        // If we get an error "Cannot convert lambda expression ... not a delegate type", install Reactive Extensions.
 	Console.Write(message); // Prints "42".
 });
 subject.OnNext(42);
@@ -24,7 +25,7 @@ subject.OnNext(42);
 The new API starts with a drop-in replacement for `Subject<T>`:
 
 ```csharp
-var subject = new SubjectNetMQ<int>("tcp://127.0.0.1:56001");
+var subject = new SubjectNetMq<int>("tcp://127.0.0.1:56001");
 subject.Subscribe(message =>
 {
 	Console.Write(message); // Prints "42".
@@ -37,7 +38,7 @@ This is great for a demo, but is not recommended for any real life application.
 For those of us familiar with Reactive Extensions (RX), `Subject<T>` is a combination of a publisher and a subscriber. If we are running a real-life application, we should separate out the publisher and the subscriber, because this means we can create the connection earlier which makes the transport setup more deterministic:
 
 ```csharp
-var publisher = new PublisherNetMQ<int>("tcp://127.0.0.1:56001");
+var publisher = new PublisherNetMq<int>("tcp://127.0.0.1:56001");
 var subscriber = new SubscriberNetMQ<int>("tcp://127.0.0.1:56001");
 subscriber.Subscribe(message =>
 {
