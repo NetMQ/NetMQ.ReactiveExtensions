@@ -25,7 +25,7 @@ subject.OnNext(42);
 The new API starts with a drop-in replacement for `Subject<T>`:
 
 ```csharp
-var subject = new SubjectNetMq<int>("tcp://127.0.0.1:56001");
+var subject = new SubjectNetMQ<int>("tcp://127.0.0.1:56001");
 subject.Subscribe(message =>
 {
     Console.Write(message); // Prints "42".
