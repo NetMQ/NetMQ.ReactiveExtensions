@@ -39,7 +39,7 @@ For those of us familiar with Reactive Extensions (RX), `Subject<T>` is a combin
 
 ```csharp
 var publisher = new PublisherNetMq<int>("tcp://127.0.0.1:56001");
-var subscriber = new SubscriberNetMQ<int>("tcp://127.0.0.1:56001");
+var subscriber = new SubscriberNetMq<int>("tcp://127.0.0.1:56001");
 subscriber.Subscribe(message =>
 {
 	Console.Write(message); // Prints "42".
